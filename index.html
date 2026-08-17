@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>히든스톤 HIDDENSTONE — 전략 바둑 대전</title>
+<meta name="description" content="HIDDENSTONE — Go with a mind game. Base Build, Turn Bidding, Hidden and Scan." />
+<meta name="theme-color" content="#1b1008" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" href="assets/icon-192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="assets/icon-180.png" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="stylesheet" href="css/style.css?v=4" />
+<!-- 온라인 멀티플레이용 PeerJS (없어도 같은 기기 2인 플레이는 동작) -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<!-- 공개 로비(방 목록)용 MQTT — 없어도 코드방·2인 플레이는 동작 -->
+<script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+</head>
+<body>
+
+<!-- ================= 로비 ================= -->
+<div id="screen-lobby">
+  <div class="lobby-top">
+    <div class="lang-switch" id="lang-switch">
+      <button class="lang-chip" data-lang="ko">한국어</button>
+      <button class="lang-chip" data-lang="en">English</button>
+    </div>
+    <button id="btn-help-lobby" class="small-btn lobby-help-btn" data-i18n="lobby.help">📖 규칙</button>
+  </div>
+
+  <header class="lobby-head">
+    <h1 class="logo-wrap" aria-label="HIDDENSTONE">
+      <svg class="logo-svg" viewBox="0 0 440 172" xmlns="http://www.w3.org/2000/svg" role="img">
+        <defs>
+          <linearGradient id="hsWord" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffc85e"/>
+            <stop offset="1" stop-color="#e07820"/>
+          </linearGradient>
+          <radialGradient id="hsStone" cx="34%" cy="28%" r="78%">
+            <stop offset="0" stop-color="#74747c"/>
+            <stop offset="0.52" stop-color="#1b1b20"/>
+            <stop offset="1" stop-color="#000000"/>
+          </radialGradient>
+          <radialGradient id="hsGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#38b6ff" stop-opacity="0.40"/>
+            <stop offset="0.6" stop-color="#38b6ff" stop-opacity="0.10"/>
+            <stop offset="1" stop-color="#38b6ff" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- 바둑판 교차점 -->
+        <g stroke="#a07c46" stroke-opacity="0.5" stroke-width="2.5" stroke-linecap="round">
+          <line x1="128" y1="50" x2="312" y2="50"/>
+          <line x1="220" y1="4" x2="220" y2="96"/>
+        </g>
+
+        <!-- 히든 오라 -->
+        <circle cx="220" cy="50" r="54" fill="url(#hsGlow)"/>
+
+        <!-- 히든 표식: 점선 링 (게임 내 히든 돌 표기와 동일한 언어) -->
+        <circle cx="220" cy="50" r="39" fill="none" stroke="#38b6ff" stroke-width="3.6"
+                stroke-dasharray="9 7.5" stroke-linecap="round"/>
+
+        <!-- 바둑돌 -->
+        <ellipse cx="222" cy="54" rx="27" ry="26" fill="#000" opacity="0.45"/>
+        <circle cx="220" cy="50" r="27" fill="url(#hsStone)"/>
+        <ellipse cx="211" cy="40" rx="8.5" ry="5.5" fill="#ffffff" opacity="0.20"
+                 transform="rotate(-30 211 40)"/>
+
+        <!-- 워드마크 -->
+        <text x="220" y="147" text-anchor="middle" font-size="44" font-weight="900"
+              letter-spacing="2" stroke="#170d04" stroke-width="8.5"
+              paint-order="stroke" stroke-linejoin="round"
+              font-family="'Arial Black','Segoe UI',sans-serif">
+          <tspan fill="#ffffff">HIDDEN</tspan><tspan fill="url(#hsWord)">STONE</tspan>
+        </text>
+      </svg>
+      <span class="logo-ko" data-i18n-html="app.subtitle">보이지 않는 한 수, <b>히든스톤</b></span>
+    </h1>
+    <p class="tagline" data-i18n="app.tagline">베이스빌드 · 턴베팅 · 히든 · 스캔 — 심리전이 있는 바둑</p>
+    <div class="bgm-row">
+      <span class="bgm-label" data-i18n="lobby.bgmLabel">🎵 로비 음악</span>
+      <button class="bgm-chip" data-bgm="zen" data-i18n="bgm.zen">🪷 고요한 기원</button>
+      <button class="bgm-chip" data-bgm="arcade" data-i18n="bgm.arcade">🕹️ 아케이드</button>
+      <button class="bgm-chip" data-bgm="epic" data-i18n="bgm.epic">⚔️ 에픽 타이틀</button>
+    </div>
+  </header>
+
+  <section class="lobby-section">
+    <h2 data-i18n="lobby.modeHead">게임 모드</h2>
+    <div class="mode-row">
+      <div class="mode-card selected" data-mode="hotseat">
+        <div class="mode-icon">👥</div>
+        <div class="mode-name" data-i18n="mode.hotseat.name">같은 기기에서 2인</div>
+        <div class="mode-desc" data-i18n="mode.hotseat.desc">1P/2P가 번갈아 조작 (비밀 단계는 화면 가림)</div>
+      </div>
+      <div class="mode-card" data-mode="public">
+        <div class="mode-icon">🌐</div>
+        <div class="mode-name" data-i18n="mode.public.name">온라인 — 공개방</div>
+        <div class="mode-desc" data-i18n="mode.public.desc">열린 방을 목록에서 보고 코드 없이 바로 참가</div>
+      </div>
+      <div class="mode-card" data-mode="host">
+        <div class="mode-icon">📡</div>
+        <div class="mode-name" data-i18n="mode.host.name">온라인 — 코드방 만들기</div>
+        <div class="mode-desc" data-i18n="mode.host.desc">비공개 방 코드를 만들어 친구에게 전달</div>
+      </div>
+      <div class="mode-card" data-mode="guest">
+        <div class="mode-icon">🔑</div>
+        <div class="mode-name" data-i18n="mode.guest.name">온라인 — 코드로 참가</div>
+        <div class="mode-desc" data-i18n="mode.guest.desc">친구에게 받은 방 코드로 접속</div>
+      </div>
+    </div>
+    <p id="online-warn" style="display:none" class="warn-note" data-i18n="lobby.onlineWarn">
+      ⚠ PeerJS 라이브러리를 불러오지 못해 온라인 모드를 사용할 수 없습니다. 인터넷 연결을 확인하세요.
+    </p>
+    <div id="join-row" class="input-row" style="display:none">
+      <label data-i18n="lobby.codeLabel">방 코드</label>
+      <input id="join-code" type="text" maxlength="8" data-i18n-ph="lobby.codePh" placeholder="예: A3K7Q" autocomplete="off" />
+    </div>
+
+    <!-- 공개방 로비 -->
+    <div id="online-public" style="display:none">
+      <div class="lobby-bar">
+        <span id="lobby-status" class="lobby-status" data-i18n="lobby.connecting">로비에 연결하는 중…</span>
+        <button id="btn-create-public" class="mini-btn primary" data-i18n="lobby.createPublic">＋ 공개방 만들기</button>
+        <button id="btn-refresh-public" class="mini-btn" data-i18n-title="lobby.refresh" title="목록 새로고침">↻</button>
+      </div>
+      <div id="room-list" class="room-list">
+        <div class="room-empty" data-i18n="lobby.connecting">로비에 연결하는 중…</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lobby-section" id="map-section">
+    <h2 data-i18n="lobby.mapHead">맵 선택</h2>
+    <div id="map-list" class="map-row"></div>
+  </section>
+
+  <section class="lobby-section" id="byo-section">
+    <h2 data-i18n="lobby.byoHead">초읽기 (시간제)</h2>
+    <div class="mode-row">
+      <div class="byo-card mode-card selected" data-sec="0">
+        <div class="mode-name" data-i18n="byo.none.name">없음</div>
+        <div class="mode-desc" data-i18n="byo.none.desc">시간 제한 없이 편하게</div>
+      </div>
+      <div class="byo-card mode-card" data-sec="25">
+        <div class="mode-name" data-i18n="byo.25.name">25초 × 3회</div>
+        <div class="mode-desc" data-i18n="byo.25.desc">정식 대회 규격. 초읽기 소진 시 −2점, 전부 소진 시 시간패</div>
+      </div>
+      <div class="byo-card mode-card" data-sec="15">
+        <div class="mode-name" data-i18n="byo.15.name">15초 × 3회</div>
+        <div class="mode-desc" data-i18n="byo.15.desc">스피드전</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lobby-section">
+    <h2 data-i18n="lobby.playerHead">플레이어</h2>
+    <div class="input-row">
+      <label id="name-p1-label" data-i18n="label.p1">1P 이름</label>
+      <input id="name-p1" type="text" maxlength="12" data-i18n-ph="name.p1" placeholder="플레이어 1" />
+    </div>
+    <div class="input-row" id="name-p2-row">
+      <label data-i18n="label.p2">2P 이름</label>
+      <input id="name-p2" type="text" maxlength="12" data-i18n-ph="name.p2" placeholder="플레이어 2" />
+    </div>
+  </section>
+
+  <button id="btn-start" class="big-btn" data-i18n="lobby.start">게임 시작</button>
+
+  <footer class="lobby-foot" data-i18n="app.footer">
+    바둑 룰 기반 전략 대전 게임 · 베이스빌드 / 턴베팅 / 히든 / 스캔
+  </footer>
+</div>
+
+<!-- ================= 게임 ================= -->
+<div id="screen-game" class="hidden">
+  <header class="game-head">
+    <span id="phase-chip" class="chip" data-i18n="phase.base">베이스빌드</span>
+    <span id="status-msg">-</span>
+    <span class="head-btns">
+      <button id="btn-help" class="small-btn" data-i18n="btn.rules">규칙</button>
+      <button id="btn-leave" class="small-btn" data-i18n="btn.leave">나가기</button>
+    </span>
+  </header>
+
+  <div class="game-body">
+    <!-- 흑 패널 -->
+    <aside id="panel-black" class="player-panel">
+      <div class="p-stone black"></div>
+      <div class="p-name" data-i18n="name.p1">플레이어 1</div>
+      <div class="p-clock">00:00</div>
+      <div class="p-score">0</div>
+      <div class="p-detail"></div>
+      <div class="p-btns">
+        <button class="btn-hidden"><b>H</b> <span data-i18n="btn.hidden">히든</span> <span class="cnt">1</span></button>
+        <button class="btn-scan"><b>S</b> <span data-i18n="btn.scan">스캔</span> <span class="cnt">1</span></button>
+      </div>
+    </aside>
+
+    <!-- 보드 -->
+    <main class="board-wrap">
+      <canvas id="board"></canvas>
+    </main>
+
+    <!-- 백 패널 -->
+    <aside id="panel-white" class="player-panel">
+      <div class="p-stone white"></div>
+      <div class="p-name" data-i18n="name.p2">플레이어 2</div>
+      <div class="p-clock">00:00</div>
+      <div class="p-score">0</div>
+      <div class="p-detail"></div>
+      <div class="p-btns">
+        <button class="btn-hidden"><b>H</b> <span data-i18n="btn.hidden">히든</span> <span class="cnt">1</span></button>
+        <button class="btn-scan"><b>S</b> <span data-i18n="btn.scan">스캔</span> <span class="cnt">1</span></button>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="game-foot">
+    <button id="btn-confirm" class="foot-btn primary">—</button>
+    <button id="btn-pass" class="foot-btn" style="display:none" data-i18n="btn.pass">패스</button>
+    <button id="btn-resume" class="foot-btn" style="display:none" data-i18n="btn.resume">대국 재개</button>
+    <button id="btn-resign" class="foot-btn danger" data-i18n="btn.resign">기권</button>
+  </footer>
+</div>
+
+<div id="toasts"></div>
+
+<!-- ================= 오버레이 ================= -->
+<div id="ov-handoff" class="overlay">
+  <div class="ov-box">
+    <h2 id="handoff-title" data-i18n="handoff.title">핸드오프</h2>
+    <p id="handoff-desc">—</p>
+    <button id="btn-handoff-ok" class="big-btn" data-i18n="handoff.ok">준비 완료 — 시작</button>
+  </div>
+</div>
+
+<div id="ov-bet" class="overlay side">
+  <div class="ov-box">
+    <h2 id="bet-title" data-i18n="phase.betting">턴베팅</h2>
+    <p class="ov-note" data-i18n-html="bet.note">—</p>
+    <div class="bet-slider-row">
+      <input id="bet-range" type="range" min="0" max="25" step="1" value="5" />
+      <div class="bet-big"><span id="bet-value">5</span><span class="bet-unit" data-i18n="bet.unit">점</span></div>
+    </div>
+    <button id="btn-bet-ok" class="big-btn" data-i18n="bet.ok">베팅 확정</button>
+  </div>
+</div>
+
+<div id="ov-wait" class="overlay">
+  <div class="ov-box">
+    <h2 data-i18n="wait.title">온라인 대기</h2>
+    <p id="wait-msg" data-i18n="wait.default">기다리는 중…</p>
+    <div id="room-code-row" style="display:none">
+      <div class="room-code" id="room-code">-----</div>
+      <button id="btn-copy-code" class="small-btn" data-i18n="wait.copyCode">코드 복사</button>
+      <p class="ov-note" data-i18n-html="wait.codeNote">—</p>
+    </div>
+    <button id="btn-wait-cancel" class="small-btn" data-i18n="wait.cancel">취소</button>
+  </div>
+</div>
+
+<div id="ov-result" class="overlay">
+  <div class="ov-box wide">
+    <h2 id="result-winner" data-i18n="res.title">결과</h2>
+    <div id="result-table"></div>
+    <div class="ov-btn-row">
+      <button id="btn-rematch" class="big-btn" data-i18n="btn.rematch">다시하기</button>
+      <button id="btn-to-lobby" class="small-btn" data-i18n="btn.toLobby">로비로</button>
+    </div>
+  </div>
+</div>
+
+<div id="ov-confirm" class="overlay">
+  <div class="ov-box">
+    <p id="confirm-msg">—</p>
+    <div class="ov-btn-row">
+      <button id="btn-confirm-yes" class="big-btn" data-i18n="confirm.yes">확인</button>
+      <button id="btn-confirm-no" class="small-btn" data-i18n="confirm.no">취소</button>
+    </div>
+  </div>
+</div>
+
+<div id="ov-help" class="overlay">
+  <div class="ov-box wide help-box">
+    <h2 data-i18n="help.title">히든스톤 규칙 요약</h2>
+    <ul>
+      <li data-i18n-html="help.1">—</li>
+      <li data-i18n-html="help.2">—</li>
+      <li data-i18n-html="help.3">—</li>
+      <li data-i18n-html="help.4">—</li>
+      <li data-i18n-html="help.5">—</li>
+      <li data-i18n-html="help.6">—</li>
+      <li data-i18n-html="help.7">—</li>
+      <li data-i18n-html="help.8">—</li>
+      <li data-i18n-html="help.9">—</li>
+      <li data-i18n-html="help.10">—</li>
+    </ul>
+    <button id="btn-help-close" class="big-btn" data-i18n="help.close">닫기</button>
+  </div>
+</div>
+
+<div class="fixed-tools">
+  <button id="btn-lang" class="tool-btn" data-i18n-title="lang.switchTo"><span id="lang-code">EN</span></button>
+  <button id="btn-sound" class="tool-btn" data-i18n-title="sound.on">🔊</button>
+</div>
+
+<script src="js/i18n.js?v=4"></script>
+<script src="js/maps.js?v=4"></script>
+<script src="js/engine.js?v=4"></script>
+<script src="js/ui.js?v=4"></script>
+<script src="js/net.js?v=4"></script>
+<script src="js/audio.js?v=4"></script>
+<script src="js/main.js?v=4"></script>
+</body>
+</html>

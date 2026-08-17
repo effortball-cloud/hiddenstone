@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="HIDDENSTONE">
+  <defs>
+    <linearGradient id="icBg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#f4e8c2"/>
+      <stop offset="0.55" stop-color="#e7d6a8"/>
+      <stop offset="1" stop-color="#d3bd82"/>
+    </linearGradient>
+    <radialGradient id="icVig" cx="50%" cy="50%" r="72%">
+      <stop offset="0.45" stop-color="#5a3c14" stop-opacity="0"/>
+      <stop offset="1" stop-color="#5a3c14" stop-opacity="0.26"/>
+    </radialGradient>
+    <radialGradient id="icGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#0d8fe0" stop-opacity="0.30"/>
+      <stop offset="0.62" stop-color="#0d8fe0" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#0d8fe0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="icStone" cx="34%" cy="27%" r="80%">
+      <stop offset="0" stop-color="#6e6e78"/>
+      <stop offset="0.5" stop-color="#17171b"/>
+      <stop offset="1" stop-color="#000000"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 바둑판 색 배경: 검은 돌 대비를 최대로 (작은 크기에서도 형태가 읽히도록) -->
+  <rect width="512" height="512" fill="url(#icBg)"/>
+  <g stroke="#6b5024" stroke-opacity="0.65" stroke-width="9">
+    <line x1="0" y1="256" x2="512" y2="256"/>
+    <line x1="256" y1="0" x2="256" y2="512"/>
+  </g>
+  <rect width="512" height="512" fill="url(#icVig)"/>
+  <circle cx="256" cy="256" r="215" fill="url(#icGlow)"/>
+
+  <!-- 히든 표식: 점선 링 (게임 내 히든 돌 표기와 동일) -->
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#0e86d4" stroke-width="21"
+          stroke-dasharray="46 32.5" stroke-linecap="round"/>
+
+  <ellipse cx="266" cy="268" rx="106" ry="103" fill="#4a3410" opacity="0.42"/>
+  <circle cx="256" cy="256" r="104" fill="url(#icStone)"/>
+  <ellipse cx="222" cy="219" rx="33" ry="21" fill="#ffffff" opacity="0.26"
+           transform="rotate(-30 222 219)"/>
+</svg>

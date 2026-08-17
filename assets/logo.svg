@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 172" width="440" height="172" role="img" aria-label="HIDDENSTONE">
+  <defs>
+    <linearGradient id="hsWord" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffc85e"/>
+      <stop offset="1" stop-color="#e07820"/>
+    </linearGradient>
+    <radialGradient id="hsStone" cx="34%" cy="28%" r="78%">
+      <stop offset="0" stop-color="#74747c"/>
+      <stop offset="0.52" stop-color="#1b1b20"/>
+      <stop offset="1" stop-color="#000000"/>
+    </radialGradient>
+    <radialGradient id="hsGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#38b6ff" stop-opacity="0.40"/>
+      <stop offset="0.6" stop-color="#38b6ff" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#38b6ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hsBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3d2712"/>
+      <stop offset="1" stop-color="#1b1008"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 미리보기용 배경 (앱에 들어간 로고는 배경 없이 사용) -->
+  <rect width="440" height="172" fill="url(#hsBg)"/>
+
+  <!-- 바둑판 교차점 -->
+  <g stroke="#a07c46" stroke-opacity="0.5" stroke-width="2.5" stroke-linecap="round">
+    <line x1="128" y1="50" x2="312" y2="50"/>
+    <line x1="220" y1="4" x2="220" y2="96"/>
+  </g>
+
+  <!-- 히든 오라 -->
+  <circle cx="220" cy="50" r="54" fill="url(#hsGlow)"/>
+
+  <!-- 히든 표식: 점선 링 (게임 내 히든 돌 표기와 동일한 언어) -->
+  <circle cx="220" cy="50" r="39" fill="none" stroke="#38b6ff" stroke-width="3.6"
+          stroke-dasharray="9 7.5" stroke-linecap="round"/>
+
+  <!-- 바둑돌 -->
+  <ellipse cx="222" cy="54" rx="27" ry="26" fill="#000" opacity="0.45"/>
+  <circle cx="220" cy="50" r="27" fill="url(#hsStone)"/>
+  <ellipse cx="211" cy="40" rx="8.5" ry="5.5" fill="#ffffff" opacity="0.20"
+           transform="rotate(-30 211 40)"/>
+
+  <!-- 워드마크 -->
+  <text x="220" y="147" text-anchor="middle" font-size="44" font-weight="900"
+        letter-spacing="2" stroke="#170d04" stroke-width="8.5"
+        paint-order="stroke" stroke-linejoin="round"
+        font-family="'Arial Black','Segoe UI',sans-serif">
+    <tspan fill="#ffffff">HIDDEN</tspan><tspan fill="url(#hsWord)">STONE</tspan>
+  </text>
+</svg>
