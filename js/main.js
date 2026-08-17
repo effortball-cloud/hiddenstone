@@ -114,6 +114,37 @@
     $('#btn-confirm-no').onclick = () => { hideOverlays(); cb(false); };
   }
 
+  /* ---------------- 가이드 오버레이 ---------------- */
+  let guideDirty = true;   // 언어가 바뀌면 다시 그려야 함
+
+  function renderGuideIfNeeded() {
+    if (!guideDirty) return;
+    window.HSGuide.render($('#guide-body'));
+    guideDirty = false;
+  }
+
+  function setGuideTab(tab) {
+    $$('.g-tab').forEach((b) => b.classList.toggle('selected', b.dataset.tab === tab));
+    $('#guide-body').style.display = tab === 'how' ? 'block' : 'none';
+    $('#rules-body').style.display = tab === 'rules' ? 'block' : 'none';
+    const scroll = tab === 'how' ? $('#guide-body') : $('#rules-body');
+    if (scroll) scroll.scrollTop = 0;
+  }
+
+  function openGuide(tab) {
+    renderGuideIfNeeded();
+    setGuideTab(tab || 'how');
+    showOverlay('#ov-help');
+  }
+
+  function initGuide() {
+    $$('.g-tab').forEach((b) => { b.onclick = () => setGuideTab(b.dataset.tab); });
+    $('#btn-help-lobby').onclick = () => openGuide('how');
+    $('#btn-learn').onclick = () => openGuide('how');
+    $('#btn-help').onclick = () => openGuide('rules');   // 대국 중엔 빠른 참조
+    $('#btn-help-close').onclick = hideOverlays;
+  }
+
   /* ---------------- 언어 ---------------- */
   function syncLangUI() {
     $$('.lang-chip').forEach((c) => c.classList.toggle('selected', c.dataset.lang === I18n.lang));
@@ -133,6 +164,8 @@
   /* 언어 전환 후 동적으로 만들어진 문구를 전부 다시 만든다 */
   function relabelUI() {
     syncLangUI();
+    guideDirty = true;
+    if ($('#ov-help').classList.contains('show')) renderGuideIfNeeded();
     renderMapCards();
     if (App.lobby) renderRooms([...App.lobby.rooms.values()].map((r) => r.info));
     $('#name-p1-label').textContent = App.mode === 'hotseat' ? t('label.p1') : t('label.myName');
@@ -205,9 +238,6 @@
     // 공개방 버튼
     $('#btn-create-public').onclick = createPublicRoom;
     $('#btn-refresh-public').onclick = () => { if (App.lobby) renderRooms([...App.lobby.rooms.values()].map((r) => r.info)); };
-
-    // 로비 규칙 버튼
-    $('#btn-help-lobby').onclick = () => showOverlay('#ov-help');
 
     // 로비 BGM 스타일 칩
     const syncBgmChips = () => {
@@ -1223,8 +1253,6 @@
       else if (App.stage === 'scoring') confirmScore();
     };
     $('#btn-resume').onclick = () => doResume(false);
-    $('#btn-help').onclick = () => showOverlay('#ov-help');
-    $('#btn-help-close').onclick = hideOverlays;
     $('#btn-leave').onclick = () => {
       // 온라인 대국 중 나가기 = 기권(패배) 처리 → 상대는 자동 승리
       if (isOnline() && App.game && App.stage !== 'over' && App.stage !== 'lobby') {
@@ -1264,6 +1292,7 @@
   /* ---------------- 초기화 ---------------- */
   window.addEventListener('DOMContentLoaded', () => {
     initLang();
+    initGuide();
     initLobby();
     wireButtons();
   });

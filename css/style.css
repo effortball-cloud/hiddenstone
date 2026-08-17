@@ -478,3 +478,161 @@ body {
   }
   .lang-chip { padding: 8px 12px; font-size: 12px; }
 }
+
+/* =========================================================
+ * 일러스트 가이드 ("게임 배우기") — js/guide.js가 채우는 영역
+ * ========================================================= */
+.ov-box.help-box {
+  width: min(880px, 96vw);
+  max-height: 92vh;
+  display: flex; flex-direction: column;
+  padding: 18px 20px 18px;
+  overflow: hidden;               /* 스크롤은 .g-scroll이 담당 */
+}
+.g-tabs {
+  display: flex; gap: 8px; flex-shrink: 0;
+  border-bottom: 1px solid var(--panel-edge);
+  margin-bottom: 14px; padding-bottom: 12px;
+}
+.g-tab {
+  flex: 1;
+  background: transparent; color: var(--dim);
+  border: 1px solid var(--panel-edge); border-radius: 9px;
+  padding: 10px 14px; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: color .15s, border-color .15s, background .15s;
+}
+.g-tab:hover { color: var(--text); border-color: var(--dim); }
+.g-tab.selected {
+  background: linear-gradient(180deg, var(--orange-hi), var(--orange));
+  border-color: transparent; color: #fff;
+}
+.g-scroll {
+  flex: 1; min-height: 0; overflow-y: auto;
+  padding-right: 6px; text-align: left;
+}
+.g-intro, .g-outro {
+  color: var(--text); font-size: 14.5px; line-height: 1.75;
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--orange);
+  border-radius: 8px; padding: 12px 14px; margin-bottom: 6px;
+}
+.g-intro b, .g-outro b { color: var(--orange-hi); }
+.g-outro { border-left-color: var(--dim); margin-top: 18px; margin-bottom: 4px; }
+
+.g-sec { padding: 22px 0 6px; border-bottom: 1px solid rgba(90,63,30,0.45); }
+.g-sec:last-of-type { border-bottom: none; }
+.g-sec h3 {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 18px; color: var(--text); margin-bottom: 8px;
+}
+.g-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; flex-shrink: 0;
+  border-radius: 50%; background: var(--orange); color: #fff;
+  font-size: 14px; font-weight: 900;
+}
+.g-lead { color: var(--dim); font-size: 14px; line-height: 1.7; margin-bottom: 4px; }
+.g-lead b { color: var(--orange-hi); }
+.g-points { margin: 12px 0 0 20px; }
+.g-points li { color: var(--text); font-size: 13.5px; line-height: 1.7; margin-bottom: 7px; }
+.g-points li b { color: var(--orange-hi); }
+
+/* --- 그림 영역 --- */
+.g-figwrap { margin: 14px 0 4px; }
+.g-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; flex-wrap: wrap;
+}
+.g-panel { display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: 100%; }
+.g-plabel {
+  font-size: 11.5px; font-weight: 700; color: var(--dim);
+  letter-spacing: 0.4px; text-align: center;
+}
+.g-board {
+  display: block; max-width: 100%; height: auto;
+  border-radius: 8px; box-shadow: 0 5px 16px rgba(0,0,0,0.45);
+}
+.g-arrow { font-size: 24px; color: var(--orange); flex-shrink: 0; font-weight: 700; }
+.g-cap {
+  color: var(--dim); font-size: 12.5px; line-height: 1.65;
+  text-align: center; margin: 12px auto 0; max-width: 640px;
+}
+
+/* --- 턴베팅 그림 --- */
+.g-bidrow { display: flex; gap: 10px; }
+.g-bid {
+  background: var(--panel); border: 2px solid var(--panel-edge);
+  border-radius: 12px; padding: 12px 16px; min-width: 104px; text-align: center;
+}
+.g-bid.win { border-color: var(--orange); box-shadow: 0 0 0 2px rgba(224,120,32,0.3); }
+.g-bid-who {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 12px; color: var(--dim); font-weight: 700; margin-bottom: 6px;
+}
+.g-bid-v { font-size: 34px; font-weight: 900; color: var(--orange-hi); line-height: 1; }
+.g-bid-u { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.g-dot { width: 13px; height: 13px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.g-dot.b { background: radial-gradient(circle at 33% 30%, #666, #000); border: 1px solid #000; }
+.g-dot.w { background: radial-gradient(circle at 33% 30%, #fff, #c8c5b8); border: 1px solid #999; }
+.g-outcome { display: flex; flex-direction: column; gap: 8px; }
+.g-oc {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--panel-edge);
+  border-radius: 9px; padding: 9px 13px; font-size: 13px; color: var(--text);
+}
+.g-oc b { color: var(--orange-hi); }
+.g-oc span:last-child { color: var(--dim); font-size: 11.5px; }
+
+/* --- 점수 계산 예 표 --- */
+.g-score { border-collapse: collapse; font-size: 13px; min-width: 240px; }
+.g-score th, .g-score td {
+  border-bottom: 1px solid var(--panel-edge); padding: 6px 12px; text-align: center;
+}
+.g-score th { color: var(--dim); font-size: 12px; }
+.g-score td:first-child { text-align: left; color: var(--dim); }
+.g-score tr.total td {
+  font-weight: 900; font-size: 16px; color: var(--orange-hi); border-bottom: none;
+}
+
+/* --- 진행 순서 --- */
+.g-flow { display: flex; align-items: stretch; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.g-step {
+  background: var(--panel); border: 1px solid var(--panel-edge); border-radius: 11px;
+  padding: 12px 14px; text-align: center; min-width: 116px;
+}
+.g-step-n {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--orange); color: #fff; font-size: 12px; font-weight: 900; margin-bottom: 6px;
+}
+.g-step-t { font-size: 13.5px; font-weight: 800; color: var(--text); }
+.g-step-s { font-size: 11.5px; color: var(--dim); margin-top: 3px; }
+
+/* --- 규칙 요약 탭 --- */
+.rules-list { margin: 4px 0 4px 18px; }
+.rules-list li { color: var(--text); font-size: 13.5px; line-height: 1.75; margin-bottom: 10px; }
+.rules-list li b { color: var(--orange-hi); }
+
+/* --- 로비의 "게임 배우기" 보조 버튼 --- */
+.learn-btn {
+  display: block; width: 100%; margin-top: 10px;
+  background: transparent; color: var(--dim);
+  border: 1px dashed var(--panel-edge); border-radius: 10px;
+  padding: 11px; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: color .15s, border-color .15s;
+}
+.learn-btn:hover { color: var(--orange-hi); border-color: var(--orange); }
+
+#btn-help-close { flex-shrink: 0; margin-top: 14px; }
+
+@media (max-width: 600px) {
+  .ov-box.help-box { padding: 14px 13px; max-height: 94vh; }
+  .g-sec h3 { font-size: 16px; }
+  .g-arrow { transform: rotate(90deg); font-size: 20px; }
+  .g-flow .g-arrow { transform: none; }
+  .g-points { margin-left: 16px; }
+}
+.g-tie {
+  color: var(--warn); font-weight: 700; font-size: 12.5px;
+  text-align: center; margin-top: 8px;
+}

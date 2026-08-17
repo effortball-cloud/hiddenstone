@@ -10,7 +10,15 @@
 
   const { EMPTY, BLACK, WHITE } = global.HS;
 
+  /* 국제 바둑 표기의 열 문자 — I는 1과 혼동되므로 건너뛴다 (OGS와 동일) */
+  const COL_LETTERS = 'ABCDEFGHJKLMNOPQRSTUVWXYZ';
+
   class BoardView {
+    /** 0-based x → 표시용 열 문자 (A,B,…,H,J,K,…) */
+    static colLabel(x) { return COL_LETTERS[x] || '?'; }
+    /** 0-based y → 표시용 행 번호 (맨 아래가 1) */
+    static rowLabel(y, size) { return String(size - y); }
+
     constructor(canvas) {
       this.canvas = canvas;
       this.ctx = canvas.getContext('2d');
@@ -145,16 +153,16 @@
       ctx.lineWidth = 2;
       ctx.strokeRect(this.px(0), this.py(0), this.cell * (n - 1), this.cell * (n - 1));
 
-      // 좌표 라벨 (열: A~ / 행: 1~, I 포함)
+      // 좌표 라벨 — 국제 바둑 표기(OGS 등과 동일): 열은 I를 건너뛰고, 행은 아래가 1
       ctx.fillStyle = '#6b5836';
       ctx.font = `600 ${Math.max(10, this.cell * 0.34)}px 'Segoe UI', sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       for (let x = 0; x < n; x++) {
-        ctx.fillText(String.fromCharCode(65 + x), this.px(x), this.oy - this.cell * 0.62);
+        ctx.fillText(BoardView.colLabel(x), this.px(x), this.oy - this.cell * 0.62);
       }
       for (let y = 0; y < n; y++) {
-        ctx.fillText(String(y + 1), this.ox - this.cell * 0.62, this.py(y));
+        ctx.fillText(String(n - y), this.ox - this.cell * 0.62, this.py(y));
       }
 
       // 천원(센터마크) — ±화점이 아닐 때만
