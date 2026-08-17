@@ -190,6 +190,7 @@
   </section>
 
   <button id="btn-start" class="big-btn" data-i18n="lobby.start">게임 시작</button>
+  <button id="btn-tutorial" class="learn-btn primary-learn" data-i18n="tut.open">▶ 직접 해보기 (2분)</button>
   <button id="btn-learn" class="learn-btn" data-i18n="guide.open">❓ 게임 배우기</button>
 
   <footer class="lobby-foot" data-i18n="app.footer">
@@ -199,6 +200,18 @@
 
 <!-- ================= 게임 ================= -->
 <div id="screen-game" class="hidden">
+  <div id="tut-bar" class="tut-bar hidden">
+    <div class="tut-n" id="tut-n">1 / 6</div>
+    <div class="tut-text">
+      <div class="tut-title" id="tut-title">—</div>
+      <div class="tut-body" id="tut-body">—</div>
+    </div>
+    <div class="tut-btns">
+      <button id="btn-tut-next" class="mini-btn primary" data-i18n="tut.next">다음 →</button>
+      <button id="btn-tut-quit" class="mini-btn" data-i18n="tut.skip">튜토리얼 종료</button>
+    </div>
+  </div>
+
   <header class="game-head">
     <span id="phase-chip" class="chip" data-i18n="phase.base">베이스빌드</span>
     <span id="status-msg">-</span>
@@ -306,6 +319,17 @@
   </div>
 </div>
 
+<div id="ov-tut-done" class="overlay">
+  <div class="ov-box">
+    <h2 data-i18n="tut.finish.title">준비 끝!</h2>
+    <p data-i18n-html="tut.finish.body">—</p>
+    <div class="ov-btn-row">
+      <button id="btn-tut-ai" class="big-btn" data-i18n="tut.finish.playAI">AI와 한 판 두기</button>
+      <button id="btn-tut-lobby" class="small-btn" data-i18n="tut.finish.lobby">로비로</button>
+    </div>
+  </div>
+</div>
+
 <div id="ov-help" class="overlay">
   <div class="ov-box wide help-box">
     <div class="g-tabs" role="tablist">
@@ -347,6 +371,7 @@
 <script src="js/engine.js?v=6"></script>
 <script src="js/ai.js?v=6"></script>
 <script src="js/ui.js?v=6"></script>
+<script src="js/tutorial.js?v=6"></script>
 <script src="js/net.js?v=6"></script>
 <script src="js/audio.js?v=6"></script>
 <script src="js/main.js?v=6"></script>

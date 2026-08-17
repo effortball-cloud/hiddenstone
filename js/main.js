@@ -63,8 +63,9 @@
   const colorName = (c) => t(c === BLACK ? 'color.black' : 'color.white');
   const isOnline = () => App.mode === 'host' || App.mode === 'guest' || App.mode === 'public';
   const isSolo = () => App.mode === 'ai';           // AI 대전
+  const isTutorial = () => App.mode === 'tutorial';
   // 내 편/상대편이 나뉘는 모드(온라인·AI) — 핫시트만 양쪽을 다 조작한다
-  const hasSides = () => isOnline() || isSolo();
+  const hasSides = () => isOnline() || isSolo() || isTutorial();
   const myColor = () => (hasSides() ? App.playerColor[App.myPlayer] : null);
   const aiColor = () => (isSolo() ? App.playerColor[App.myPlayer === 1 ? 2 : 1] : null);
   const aiPlayer = () => (App.myPlayer === 1 ? 2 : 1);
@@ -76,8 +77,11 @@
     return true; // hotseat: 항상 현재 턴 주인이 조작
   };
 
-  /* ---------------- 토스트 ---------------- */
-  function toast(msg, kind, ms) {
+  /* ---------------- 토스트 ----------------
+   * 튜토리얼 중에는 안내를 바가 담당하므로 일반 토스트를 띄우지 않는다
+   * (여러 개가 쌓여 보드를 덮어버린다). force=true인 튜토리얼 안내만 통과. */
+  function toast(msg, kind, ms, force) {
+    if (isTutorial() && !force) return;
     const box = $('#toasts');
     const el = document.createElement('div');
     el.className = 'toast' + (kind ? ' ' + kind : '');
@@ -196,6 +200,11 @@
           break;
         }
       }
+    }
+
+    if (isTutorial() && window.HSTutorial) {
+      window.HSTutorial.goto(window.HSTutorial.index());   // 현재 단계를 새 언어로 다시
+      return;
     }
 
     if (App._phase) setPhaseChip(App._phase);
@@ -613,6 +622,7 @@
   }
 
   function revealBases() {
+    if (!App.game || App.game.phase !== 'base') return;   // 중복 호출 방어
     const placement = {};
     placement[App.playerColor[1]] = App.base.picks[1];
     placement[App.playerColor[2]] = App.base.picks[2];
@@ -697,6 +707,7 @@
   }
 
   function resolveBets(randomFirst) {
+    if (!App.game || App.game.phase !== 'betting' || !App.bet) return;   // 중복 호출 방어
     const b1 = App.bet.bids[1], b2 = App.bet.bids[2];
     if (b1 === b2 && randomFirst == null) {
       if (App.bet.round === 1) {
@@ -768,6 +779,7 @@
   }
 
   function onBoardClick(pt) {
+    if (isTutorial()) { window.HSTutorial.click(pt); return; }
     if (App.stage === 'base') { baseClick(pt); return; }
     if (App.stage === 'scoring') { toggleDead(pt, false); return; }
     if (App.stage !== 'play' || !canAct()) return;
@@ -1139,6 +1151,110 @@
     }
   }
 
+  /* ---------------- 인터랙티브 튜토리얼 ---------------- */
+  /* HSTutorial이 단계를 관리하고, 실제 착수·렌더링은 여기(본 게임과 같은 경로)로 위임받는다 */
+  const tutHost = {
+    view: () => App.view,
+    clickMode: () => App.clickMode,
+    resetClickMode: () => { App.clickMode = 'move'; HSAudio.hiddenCancel(); },
+    tempReveal: () => App.tempReveal,
+    setGame: (g) => {
+      App.game = g;
+      App.view.setGame(g);
+    },
+    render: () => refreshAll(),
+    /* 힌트도 토스트가 아니라 바 안에서 보여준다 — 안내가 한 곳에 모여야 읽힌다 */
+    nudge: (msg) => {
+      const body = $('#tut-body');
+      body.innerHTML = msg;
+      body.classList.remove('nudge');
+      void body.offsetWidth;          // 같은 힌트가 반복돼도 애니메이션이 다시 돌게
+      body.classList.add('nudge');
+    },
+    setBar: (o) => {
+      $('#tut-n').textContent = t('tut.stepOf', { n: o.n, total: o.total });
+      $('#tut-title').textContent = o.title;
+      const body = $('#tut-body');
+      body.classList.remove('nudge');
+      body.innerHTML = o.body;
+      $('#btn-tut-next').style.display = o.advance ? 'inline-block' : 'none';
+    },
+    /* 실제 행동 실행 — 성공했는지 돌려준다 */
+    act: (kind, pt) => {
+      const g = App.game;
+      if (kind === 'scan') {
+        const before = g.scanUsed[BLACK];
+        doScan(BLACK, pt, false);
+        return g.scanUsed[BLACK] > before;
+      }
+      const before = g.moveCount;
+      if (kind === 'hidden') doHidden(BLACK, pt, false);
+      else doMove(BLACK, pt, false);
+      return g.moveCount > before;
+    },
+    showFinish: () => showOverlay('#ov-tut-done'),
+  };
+
+  function startTutorial() {
+    App.mode = 'tutorial';
+    App.myPlayer = 1;
+    App.names[1] = t('name.me');
+    App.names[2] = t('name.opponent');
+    App.playerColor = { 1: BLACK, 2: WHITE };
+    App.stage = 'play';
+    App.clickMode = 'move';
+    App.deadSet = new Set();
+    App.tempReveal = new Set();
+    App.byoyomi = null;
+    App.byo = null;
+    App.bet = null;
+    App._lastResult = null;
+    stopAi();
+    stopClock();
+    teardownPublicLobby();
+
+    $('#screen-lobby').classList.add('hidden');
+    $('#screen-game').classList.remove('hidden');
+    $('#screen-game').classList.add('tut-on');
+    $('#tut-bar').classList.remove('hidden');
+    hideOverlays();
+
+    if (!App.view) {
+      App.view = new BoardView($('#board'));
+      App.view.onClick = onBoardClick;
+    }
+    setPhaseChip('phase.play');
+    window.HSTutorial.start(tutHost);
+  }
+
+  function exitTutorial() {
+    $('#screen-game').classList.remove('tut-on');
+    $('#tut-bar').classList.add('hidden');
+    App.mode = 'ai';
+    showLobby();
+    applyModeUI('ai');
+    $$('.mode-card[data-mode]').forEach((c) =>
+      c.classList.toggle('selected', c.dataset.mode === 'ai'));
+  }
+
+  function initTutorial() {
+    $('#btn-tutorial').onclick = startTutorial;
+    $('#btn-tut-next').onclick = () => window.HSTutorial.next();
+    $('#btn-tut-quit').onclick = exitTutorial;
+    $('#btn-tut-lobby').onclick = exitTutorial;
+    $('#btn-tut-ai').onclick = () => {
+      $('#screen-game').classList.remove('tut-on');
+      $('#tut-bar').classList.add('hidden');
+      hideOverlays();
+      App.mode = 'ai';
+      App.myPlayer = 1;
+      App.names[1] = t('name.me');
+      App.names[2] = t('ai.name.' + App.aiLevel);
+      readByoyomi();
+      startGame();
+    };
+  }
+
   /* ---------------- AI 차례 ---------------- */
   function stopAi() {
     if (App.aiTimer) { clearTimeout(App.aiTimer); App.aiTimer = null; }
@@ -1409,6 +1525,8 @@
 
   function showLobby() {
     if (App.net) { App.net.destroy(); App.net = null; }
+    $('#screen-game').classList.remove('tut-on');
+    $('#tut-bar').classList.add('hidden');
     stopAi();
     stopClock();
     HSAudio.hiddenCancel();
@@ -1429,6 +1547,7 @@
   window.addEventListener('DOMContentLoaded', () => {
     initLang();
     initGuide();
+    initTutorial();
     initLobby();
     wireButtons();
   });

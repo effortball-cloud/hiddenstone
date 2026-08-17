@@ -636,3 +636,57 @@ body {
   color: var(--warn); font-weight: 700; font-size: 12.5px;
   text-align: center; margin-top: 8px;
 }
+
+/* =========================================================
+ * 인터랙티브 튜토리얼 안내 바
+ * ========================================================= */
+.tut-bar {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(180deg, rgba(224,120,32,0.16), rgba(224,120,32,0.06));
+  border: 1px solid var(--orange);
+  border-radius: 12px;
+  padding: 12px 16px; margin-bottom: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.tut-n {
+  flex-shrink: 0; font-size: 13px; font-weight: 900; color: #fff;
+  background: var(--orange); border-radius: 20px; padding: 5px 13px;
+  font-variant-numeric: tabular-nums;
+}
+.tut-text { flex: 1; min-width: 0; }
+.tut-title { font-size: 15px; font-weight: 800; color: var(--orange-hi); margin-bottom: 3px; }
+.tut-body { font-size: 13.5px; line-height: 1.6; color: var(--text); }
+.tut-body b { color: var(--orange-hi); }
+.tut-btns { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* 튜토리얼 중엔 패스/기권 같은 대국 버튼은 의미가 없어 숨긴다 */
+#screen-game.tut-on .game-foot { display: none; }
+#screen-game.tut-on .p-clock { display: none; }
+/* 상대는 두지 않으므로 상대 패널의 H/S 버튼은 감춘다 */
+#screen-game.tut-on #panel-white .p-btns { visibility: hidden; }
+/* 푸터를 숨긴 만큼 패널이 내려와 우하단 고정 버튼과 겹치므로 여백 확보 */
+#screen-game.tut-on { padding-bottom: 70px; }
+
+/* 로비: 직접 해보기 버튼을 한 단계 강조 */
+.learn-btn.primary-learn {
+  border-style: solid; border-color: var(--orange);
+  color: var(--orange-hi); font-size: 15px;
+}
+.learn-btn.primary-learn:hover { background: rgba(224,120,32,0.14); }
+
+@media (max-width: 700px) {
+  .tut-bar { flex-wrap: wrap; gap: 9px; padding: 10px 12px; }
+  .tut-btns { width: 100%; }
+  .tut-btns .mini-btn { flex: 1; }
+}
+/* 잘못 짚었을 때의 힌트 — 바 안에서 한 번 깜박여 눈에 띄게 */
+.tut-body.nudge {
+  color: var(--warn);
+  animation: tutNudge .5s ease-out;
+}
+@keyframes tutNudge {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(-5px); }
+  55%  { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}

@@ -73,6 +73,49 @@
       'label.myName': '내 이름',
       'lobby.start': '게임 시작',
 
+      /* --- 인터랙티브 튜토리얼 (js/tutorial.js) --- */
+      'tut.open': '▶ 직접 해보기 (2분)',
+      'tut.stepOf': '{n} / {total}',
+      'tut.next': '다음 →',
+      'tut.skip': '튜토리얼 종료',
+      'tut.need.hidden': '먼저 왼쪽 패널의 <b>H 히든</b> 버튼을 누르세요.',
+      'tut.need.scan': '먼저 왼쪽 패널의 <b>S 스캔</b> 버튼을 누르세요.',
+      'tut.wrong.occupied': '이미 돌이 있는 자리입니다. 빈 교차점을 클릭하세요.',
+      'tut.wrong.illegal': '그 자리에는 둘 수 없습니다. 다른 곳을 시도해보세요.',
+
+      'tut.place.title': '돌 놓기',
+      'tut.place.ask': '빈 교차점을 아무 곳이나 클릭해 흑돌을 놓아보세요.',
+      'tut.place.done': '그게 전부입니다. 판에 살아남은 돌 하나가 곧 1점입니다.',
+
+      'tut.capture.title': '따냄',
+      'tut.capture.ask': '가운데 백돌은 활로가 <b>{coord}</b> 하나뿐입니다. 거기에 두어 따내세요.',
+      'tut.capture.wrong': '{coord}에 두어야 백돌을 따낼 수 있습니다.',
+      'tut.capture.done': '따냈습니다. 이 게임의 따냄은 잡은 쪽이 점수를 얻는 게 아니라, <b>잡힌 쪽의 점수가 사라지는</b> 것으로 계산됩니다.',
+
+      'tut.plus.title': '± 화점',
+      'tut.plus.ask': '<b>{coord}</b>의 + 다이아몬드에 처음 놓는 돌은 즉시 5점을 얻습니다. 놓아보세요.',
+      'tut.plus.wrong': '+ 다이아몬드는 {coord}입니다. 아래쪽 파란 − 는 반대로 5점을 잃는 자리예요.',
+      'tut.plus.done': '5점 획득. 표식이 사라진 것을 보세요 — ±화점은 <b>처음 한 번만</b> 발동합니다.',
+
+      'tut.base.title': '베이스 돌',
+      'tut.base.ask': '무늬가 있는 돌은 베이스 — 1점이 아니라 <b>5점</b>짜리입니다. {coord}에 두어 백 베이스를 잡아보세요.',
+      'tut.base.wrong': '{coord}입니다. 베이스 하나는 일반 돌 다섯 개와 같습니다.',
+      'tut.base.done': '백은 5점을 잃었습니다. 그래서 베이스는 처음 배치할 때 <b>서로 떨어뜨려</b> 두는 게 안전합니다.',
+
+      'tut.hidden.title': '히든 — 보이지 않는 수',
+      'tut.hidden.ask': '왼쪽 패널의 <b>H 히든</b> 버튼을 누른 뒤, 빈 자리 아무 곳에 두세요.',
+      'tut.hidden.done': '놓았습니다. 점선 링은 <b>나에게만</b> 보이는 표시입니다 — 상대 화면에는 이 돌이 아예 그려지지 않고, "히든을 썼다"는 사실만 통보됩니다.',
+
+      'tut.scan.title': '스캔 — 한 점 탐색',
+      'tut.scan.ask': '상대가 히든을 숨겨 뒀습니다. 연습이니 알려드리면 <b>{coord}</b>입니다. <b>S 스캔</b>을 누르고 그 자리를 확인해보세요.',
+      'tut.scan.wrong': '{coord}를 스캔해보세요.',
+      'tut.scan.done': '찾았습니다. 실전에서는 위치를 <b>모르는 상태로</b> 찍어야 하고, 성공이든 실패든 상대가 2점을 얻습니다. 게다가 잠깐 반짝였다 사라지니 기억해야 합니다.',
+
+      'tut.finish.title': '준비 끝!',
+      'tut.finish.body': '규칙의 핵심은 다 만져봤습니다. 남은 건 <b>베이스빌드</b>(시작 전 몰래 3개)와 <b>턴베팅</b>(선공 경매)인데, 둘 다 실제 대국이 시작되면 화면이 순서대로 안내해줍니다.',
+      'tut.finish.playAI': 'AI와 한 판 두기',
+      'tut.finish.lobby': '로비로',
+
       /* --- AI 대전 --- */
       'mode.ai.name': 'AI와 대전',
       'mode.ai.desc': '혼자서 바로 시작 — 난이도 3단계',
@@ -428,6 +471,49 @@
       'label.p2': 'P2 name',
       'label.myName': 'Your name',
       'lobby.start': 'START GAME',
+
+      /* --- Interactive tutorial (js/tutorial.js) --- */
+      'tut.open': '▶ Try it hands-on (2 min)',
+      'tut.stepOf': '{n} / {total}',
+      'tut.next': 'Next →',
+      'tut.skip': 'Exit tutorial',
+      'tut.need.hidden': 'First press the <b>H Hidden</b> button in the left panel.',
+      'tut.need.scan': 'First press the <b>S Scan</b> button in the left panel.',
+      'tut.wrong.occupied': 'There is already a stone there. Click an empty intersection.',
+      'tut.wrong.illegal': 'You cannot play there. Try another point.',
+
+      'tut.place.title': 'Placing a stone',
+      'tut.place.ask': 'Click any empty intersection to place a black stone.',
+      'tut.place.done': 'That is all there is to it. Every stone that survives on the board is worth 1 point.',
+
+      'tut.capture.title': 'Capturing',
+      'tut.capture.ask': 'The white stone in the middle has just one liberty left, at <b>{coord}</b>. Play there to capture it.',
+      'tut.capture.wrong': 'Play at {coord} to capture the white stone.',
+      'tut.capture.done': 'Captured. Here a capture is scored as <b>points lost by the stone’s owner</b>, not points gained by the capturer.',
+
+      'tut.plus.title': '± points',
+      'tut.plus.ask': 'The first stone to land on the + diamond at <b>{coord}</b> scores 5 points at once. Play there.',
+      'tut.plus.wrong': 'The + diamond is at {coord}. The blue − below it costs you 5 instead.',
+      'tut.plus.done': 'Five points. Notice the marker is gone — a ± point fires <b>only once, ever</b>.',
+
+      'tut.base.title': 'Base stones',
+      'tut.base.ask': 'A stone with a swirl is a base — worth <b>5 points</b>, not 1. Play {coord} to capture White’s base.',
+      'tut.base.wrong': 'It is {coord}. One base is worth five ordinary stones.',
+      'tut.base.done': 'White just lost 5 points. That is why you <b>spread your bases apart</b> when you place them.',
+
+      'tut.hidden.title': 'Hidden — the invisible move',
+      'tut.hidden.ask': 'Press the <b>H Hidden</b> button in the left panel, then play on any empty point.',
+      'tut.hidden.done': 'Placed. The dashed ring is a marker <b>only you</b> can see — on your opponent’s board this stone is not drawn at all. They are only told that you used Hidden.',
+
+      'tut.scan.title': 'Scan — probe one point',
+      'tut.scan.ask': 'Your opponent has a hidden stone out there. This is practice, so here is the answer: <b>{coord}</b>. Press <b>S Scan</b> and check that point.',
+      'tut.scan.wrong': 'Try scanning {coord}.',
+      'tut.scan.done': 'Found it. In a real game you scan <b>without knowing</b> where it is, and your opponent gains 2 points whether you hit or miss. It also flashes only briefly, so you have to remember the spot.',
+
+      'tut.finish.title': 'You are ready',
+      'tut.finish.body': 'You have now handled every core rule. What is left is <b>Base Build</b> (3 secret stones before the game) and <b>Komi Bidding</b> (the auction for the first move) — and the game walks you through both as soon as a real match starts.',
+      'tut.finish.playAI': 'Play a game against the AI',
+      'tut.finish.lobby': 'Back to lobby',
 
       /* --- AI opponent --- */
       'mode.ai.name': 'Play the AI',
