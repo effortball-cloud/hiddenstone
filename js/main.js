@@ -14,6 +14,7 @@
   const { BoardView } = window.HSUI;
   const { NetSession } = window.HSNet;
   const MAPS = window.HSMaps;
+  const AI = window.HSAI;
   const I18n = window.HSI18n;
   const t = (k, p) => I18n.t(k, p);
 
@@ -25,7 +26,7 @@
 
   /* ---------------- 상태 ---------------- */
   const App = {
-    mode: 'hotseat',      // hotseat | host | guest | public
+    mode: 'ai',           // ai | hotseat | host | guest | public (기본 = AI 대전)
     net: null,
     game: null,
     view: null,
@@ -46,6 +47,8 @@
     byoyomi: null,          // null(무제한) | { sec, periods }
     byo: null,              // { 1:{left,count}, 2:{left,count} } 진행 상태
     _clockTurn: null,
+    aiLevel: 'normal',      // AI 대전 난이도 (easy|normal|hard)
+    aiTimer: null,          // AI 착수 지연 타이머
     lobby: null,            // LobbyClient (공개방 목록)
     publicCode: null,       // 내가 만든 공개방 코드
     _status: null,          // 언어 전환 시 다시 그리기 위한 { key, params }
@@ -59,12 +62,17 @@
   const nameOfColor = (c) => App.names[colorPlayer(c)];
   const colorName = (c) => t(c === BLACK ? 'color.black' : 'color.white');
   const isOnline = () => App.mode === 'host' || App.mode === 'guest' || App.mode === 'public';
-  const myColor = () => (isOnline() ? App.playerColor[App.myPlayer] : null);
+  const isSolo = () => App.mode === 'ai';           // AI 대전
+  // 내 편/상대편이 나뉘는 모드(온라인·AI) — 핫시트만 양쪽을 다 조작한다
+  const hasSides = () => isOnline() || isSolo();
+  const myColor = () => (hasSides() ? App.playerColor[App.myPlayer] : null);
+  const aiColor = () => (isSolo() ? App.playerColor[App.myPlayer === 1 ? 2 : 1] : null);
+  const aiPlayer = () => (App.myPlayer === 1 ? 2 : 1);
   // 지금 이 기기에서 조작 중인 플레이어 번호
-  const actor = () => (isOnline() ? App.myPlayer : colorPlayer(App.game.turn));
+  const actor = () => (hasSides() ? App.myPlayer : colorPlayer(App.game.turn));
   const canAct = () => {
     if (!App.game || App.game.phase !== 'play') return false;
-    if (isOnline()) return App.game.turn === myColor();
+    if (hasSides()) return App.game.turn === myColor();
     return true; // hotseat: 항상 현재 턴 주인이 조작
   };
 
@@ -178,6 +186,18 @@
       }
     }
 
+    // AI 이름도 새 언어로 (기본 이름을 쓰고 있을 때만)
+    if (isSolo()) {
+      const ap = aiPlayer();
+      for (const lv of AI.levels) {
+        if (App.names[ap] === I18n.inLang('ko', 'ai.name.' + lv) ||
+            App.names[ap] === I18n.inLang('en', 'ai.name.' + lv)) {
+          App.names[ap] = t('ai.name.' + App.aiLevel);
+          break;
+        }
+      }
+    }
+
     if (App._phase) setPhaseChip(App._phase);
     if (App._status) setStatus(App._status.key, App._status.params);
 
@@ -215,25 +235,32 @@
     });
   }
 
+  /* 선택된 모드에 맞춰 로비 UI를 정리한다 (첫 진입/모드 변경 공용) */
+  function applyModeUI(m) {
+    App.mode = m;
+    $('#join-row').style.display = m === 'guest' ? 'flex' : 'none';
+    $('#name-p2-row').style.display = m === 'hotseat' ? 'flex' : 'none';
+    $('#ai-section').style.display = m === 'ai' ? 'block' : 'none';
+    // 맵은 만드는 쪽만 고른다(참가 시엔 방장 맵을 따름)
+    $('#map-section').style.display = (m === 'guest') ? 'none' : 'block';
+    $('#name-p1-label').textContent = m === 'hotseat' ? t('label.p1') : t('label.myName');
+    $('#online-public').style.display = m === 'public' ? 'block' : 'none';
+    $('#btn-start').style.display = m === 'public' ? 'none' : 'block';
+    if (m === 'public') initPublicLobby();
+    else teardownPublicLobby();
+  }
+
   function initLobby() {
     // 모드 카드
     $$('.mode-card').forEach((card) => {
+      if (!card.dataset.mode) return;   // 난이도/초읽기 카드는 제외
       card.onclick = () => {
-        $$('.mode-card').forEach((c) => c.classList.remove('selected'));
+        $$('.mode-card[data-mode]').forEach((c) => c.classList.remove('selected'));
         card.classList.add('selected');
-        App.mode = card.dataset.mode;
-        const m = App.mode;
-        $('#join-row').style.display = m === 'guest' ? 'flex' : 'none';
-        $('#name-p2-row').style.display = m === 'hotseat' ? 'flex' : 'none';
-        // 맵은 만드는 쪽만 고른다(참가 시엔 방장 맵을 따름)
-        $('#map-section').style.display = (m === 'guest') ? 'none' : 'block';
-        $('#name-p1-label').textContent = m === 'hotseat' ? t('label.p1') : t('label.myName');
-        $('#online-public').style.display = m === 'public' ? 'block' : 'none';
-        $('#btn-start').style.display = m === 'public' ? 'none' : 'block';
-        if (m === 'public') initPublicLobby();
-        else teardownPublicLobby();
+        applyModeUI(card.dataset.mode);
       };
     });
+    applyModeUI(App.mode);   // 첫 진입 상태도 모드에 맞춘다
 
     // 공개방 버튼
     $('#btn-create-public').onclick = createPublicRoom;
@@ -253,6 +280,16 @@
     syncBgmChips();
 
     renderMapCards();
+
+    // AI 난이도 카드
+    $$('.ai-card').forEach((card) => {
+      card.onclick = (e) => {
+        e.stopPropagation();
+        $$('.ai-card').forEach((c) => c.classList.remove('selected'));
+        card.classList.add('selected');
+        App.aiLevel = card.dataset.level;
+      };
+    });
 
     // 초읽기 카드
     $$('.byo-card').forEach((card) => {
@@ -311,6 +348,13 @@
     readByoyomi();
 
     if (App.mode === 'hotseat') {
+      startGame();
+      return;
+    }
+    if (App.mode === 'ai') {
+      App.myPlayer = 1;                       // 사람은 항상 P1
+      App.names[1] = $('#name-p1').value.trim() || t('name.me');
+      App.names[2] = t('ai.name.' + App.aiLevel);
       startGame();
       return;
     }
@@ -472,7 +516,7 @@
       App.view = new BoardView($('#board'));
       App.view.onClick = onBoardClick;
     }
-    App.view.opts.showHiddenFor = isOnline() ? myColor() : null;
+    App.view.opts.showHiddenFor = hasSides() ? myColor() : null;
     App.view.opts.tempReveal = App.tempReveal;
     App.view.opts.deadSet = App.deadSet;
     App.view.opts.territory = null;
@@ -548,6 +592,13 @@
       } else {
         revealBases();
       }
+    } else if (isSolo()) {
+      // AI가 자기 베이스를 고른다 (사람 배치를 보고 고르지 않도록, 사람 돌은 아직 판에 없다)
+      App.base.picks[aiPlayer()] = AI.chooseBases(App.game, aiColor(), App.aiLevel);
+      App.base.confirmed[aiPlayer()] = true;
+      App.view.opts.pendingBases = null;
+      $('#btn-confirm').disabled = true;
+      revealBases();
     } else {
       App.net.send({ t: 'base', list: App.base.picks[App.myPlayer] });
       App.view.opts.pendingBases = { color: myColor(), list: App.base.picks[App.myPlayer] };
@@ -630,6 +681,9 @@
       } else {
         resolveBets();
       }
+    } else if (isSolo()) {
+      App.bet.bids[aiPlayer()] = AI.chooseBid(App.game, aiColor(), App.aiLevel);
+      resolveBets();
     } else {
       App.net.send({ t: 'bid', round: App.bet.round, v });
       setStatus('status.waitBid');
@@ -660,7 +714,7 @@
         return;
       }
       // 재베팅도 동률 → 랜덤 선공 (색은 그대로)
-      if (isOnline()) {
+      if (isOnline()) {   // AI 대전은 아래 로컬 분기로 처리
         if (App.myPlayer === 1) { // 방장이 권위자로서 결정
           const first = Math.random() < 0.5 ? 1 : 2;
           App.net.send({ t: 'tiebreak', first });
@@ -708,7 +762,7 @@
     $('#btn-pass').style.display = 'inline-block';
     $('#btn-confirm').style.display = 'none';
     $('#btn-resume').style.display = 'none';
-    App.view.opts.showHiddenFor = isOnline() ? myColor() : null;
+    App.view.opts.showHiddenFor = hasSides() ? myColor() : null;
     App.view.opts.ghost = 'stone';
     refreshAll();
   }
@@ -765,7 +819,7 @@
         r.found != null ? 'good' : 'bad', 4500);
     }
     // 잠깐 보였다가 사라짐 (기억해야 함)
-    if (r.found != null && (!fromRemote || App.mode === 'hotseat')) {
+    if (r.found != null && (!fromRemote || !hasSides())) {
       App.tempReveal.add(r.found);
       App.view.render();
       setTimeout(() => { App.tempReveal.delete(r.found); App.view.render(); }, 2500);
@@ -788,7 +842,7 @@
 
   function handleActionResult(r, color, fromRemote, wasHidden) {
     if (r.type === 'probe') {
-      const probedMine = isOnline() && App.game.board[r.revealed[0]] === myColor();
+      const probedMine = hasSides() && App.game.board[r.revealed[0]] === myColor();
       if (fromRemote) {
         toast(probedMine ? t('toast.probeMine') : t('toast.probeRemote'), 'warn', 5000);
       } else {
@@ -817,7 +871,7 @@
       toast(t('toast.hiddenRevealed'), 'warn', 4500);
     }
     // ±화점 획득 알림 (히든 착수의 화점 획득은 위치가 새므로 조용히 처리)
-    const bonusVisible = !wasHidden || (isOnline() && !fromRemote);
+    const bonusVisible = !wasHidden || (hasSides() && !fromRemote);
     if (r.pointBonus && bonusVisible) {
       toast(r.pointBonus > 0 ? t('toast.plusPoint') : t('toast.minusPoint'),
         r.pointBonus > 0 ? 'good' : 'bad', 3500);
@@ -838,6 +892,7 @@
 
   function enterScoring() {
     App.stage = 'scoring';
+    stopAi();
     HSAudio.hiddenCancel();
     setPhaseChip('phase.scoring');
     App.deadSet.clear();
@@ -875,7 +930,7 @@
   }
 
   function confirmScore() {
-    if (App.mode === 'hotseat') { finalizeGame(); return; }
+    if (App.mode === 'hotseat' || isSolo()) { finalizeGame(); return; }
     App.scoreConfirmed[App.myPlayer] = true;
     App.net.send({ t: 'scoreOk' });
     $('#btn-confirm').disabled = true;
@@ -890,6 +945,7 @@
   function finalizeGame() {
     const res = App.game.finalize(App.deadSet);
     App.stage = 'over';
+    stopAi();
     stopClock();
     showResult(res);
   }
@@ -910,6 +966,7 @@
     HSAudio.hiddenCancel();
     if (!fromRemote && isOnline()) App.net.send({ t: 'resign' });
     App.stage = 'over';
+    stopAi();
     stopClock();
     showResult(null, color);
   }
@@ -920,7 +977,7 @@
     renderResult(res, loserColor, reason);
     // 내가 이겼는지 기준으로 차임 (핫시트는 항상 승리 차임)
     const winColor = res ? res.winner : other(loserColor);
-    const iWon = !isOnline() || winColor === myColor();
+    const iWon = hasSides() ? winColor === myColor() : true;
     HSAudio.result(iWon);
     showOverlay('#ov-result');
   }
@@ -962,7 +1019,7 @@
   }
 
   function requestRematch() {
-    if (App.mode === 'hotseat') { startGame(); return; }
+    if (App.mode === 'hotseat' || isSolo()) { startGame(); return; }
     App.rematchWant[App.myPlayer] = true;
     App.net.send({ t: 'rematch' });
     $('#btn-rematch').textContent = t('btn.rematchWait');
@@ -1082,6 +1139,83 @@
     }
   }
 
+  /* ---------------- AI 차례 ---------------- */
+  function stopAi() {
+    if (App.aiTimer) { clearTimeout(App.aiTimer); App.aiTimer = null; }
+  }
+
+  /* 지금이 AI 차례면 사람처럼 잠깐 뒤에 두게 예약한다 */
+  function maybeAiTurn() {
+    if (!isSolo() || !App.game) return;
+    if (App.stage !== 'play' || App.game.phase !== 'play') return;
+    if (App.game.turn !== aiColor()) return;
+    if (App.aiTimer) return;
+    App.aiTimer = setTimeout(() => {
+      App.aiTimer = null;
+      runAiTurn(0);
+    }, 420 + Math.random() * 520);
+  }
+
+  /**
+   * AI 한 수 실행.
+   * depth: 같은 차례에 다시 행동해야 하는 경우(스캔은 턴 미소비, 히든 찍기는 턴 유지)의 재귀 깊이.
+   * AI는 HSAI.chooseAction 안에서 "가려진 판"만 보고 판단한다 — 히든 위치를 알지 못한다.
+   */
+  function runAiTurn(depth) {
+    if (!isSolo() || !App.game || App.stage !== 'play') return;
+    const c = aiColor();
+    if (App.game.turn !== c) return;
+    if (depth > 8) { doPass(c, true); return; }   // 안전장치: 무한 재시도 방지
+
+    const again = (d, ms) => setTimeout(() => runAiTurn(d), ms);
+    let a;
+    try {
+      a = AI.chooseAction(App.game, c, App.aiLevel);
+    } catch (e) {
+      console.error('AI 판단 실패 → 패스', e);
+      doPass(c, true);
+      return;
+    }
+
+    if (a.type === 'pass') { doPass(c, true); return; }
+
+    if (a.type === 'scan') {
+      doScan(c, { x: a.x, y: a.y }, true);
+      // 스캔은 턴을 쓰지 않으므로 이어서 착수한다
+      if (App.game && App.game.turn === c && App.stage === 'play') again(depth + 1, 620);
+      return;
+    }
+
+    if (a.type === 'hidden') {
+      // 온라인과 같은 연출: 먼저 "히든을 쓴다"고 알린 뒤 착수 (위치는 알리지 않음)
+      HSAudio.hiddenArm();
+      toast(t('toast.hiddenArmRemote'), 'warn', 3800);
+      setTimeout(() => {
+        if (!App.game || App.game.turn !== c || App.stage !== 'play') { HSAudio.hiddenCancel(); return; }
+        doHidden(c, { x: a.x, y: a.y }, true);
+        if (App.game && App.game.turn === c && App.stage === 'play') again(depth + 1, 500);
+      }, 1250);
+      return;
+    }
+
+    // 실제 판에서는 패(ko) 등으로 막힐 수 있다 — 차선책을 순서대로 시도한다
+    const tries = [{ x: a.x, y: a.y }].concat(a.alts || []);
+    let placed = false;
+    for (const mv of tries) {
+      const before = App.game.moveCount;
+      doMove(c, mv, true);
+      if (!App.game) return;
+      if (App.game.moveCount !== before) { placed = true; break; }   // 착수 성공
+      if (App.game.turn === c && App.game.board[App.game.idx(mv.x, mv.y)] !== EMPTY) {
+        // 상대 히든을 찍어 공개됨(probe) — 판이 바뀌었으니 다시 판단한다
+        again(depth + 1, 500);
+        return;
+      }
+    }
+    if (!placed) { doPass(c, true); return; }
+    if (App.game && App.game.turn === c && App.stage === 'play') again(depth + 1, 500);
+  }
+
   /* ---------------- 패널/시계 갱신 ---------------- */
   function refreshAll() {
     const g = App.game;
@@ -1122,7 +1256,7 @@
       hBtn.querySelector('.cnt').textContent = hiddenLeft;
       sBtn.querySelector('.cnt').textContent = scanLeft;
       const isTurnPanel = g.phase === 'play' && g.turn === c;
-      const controlsHere = isOnline() ? myColor() === c : true;
+      const controlsHere = hasSides() ? myColor() === c : true;
       hBtn.disabled = !(isTurnPanel && controlsHere && hiddenLeft > 0);
       sBtn.disabled = !(isTurnPanel && controlsHere && scanLeft > 0);
       hBtn.classList.toggle('armed', App.clickMode === 'hidden' && isTurnPanel);
@@ -1133,7 +1267,7 @@
 
     if (g.phase === 'play') {
       const turnP = colorPlayer(g.turn);
-      const mine = !isOnline() || turnP === App.myPlayer;
+      const mine = !hasSides() || turnP === App.myPlayer;
       setStatusRaw(t('status.turn', { name: App.names[turnP], color: colorName(g.turn) }) +
         (App.clickMode === 'hidden' ? t('status.suffixHidden') :
          App.clickMode === 'scan' ? t('status.suffixScan') :
@@ -1144,6 +1278,7 @@
     }
     updateClockDisplay();
     App.view.render();
+    maybeAiTurn();
   }
 
   function fmtClock(sec) {
@@ -1160,7 +1295,7 @@
       App.clocks[p]++;
       if (App.byo) {
         // 온라인에서는 차례인 쪽 클라이언트가 시간 판정의 주체
-        const authority = !isOnline() || p === App.myPlayer;
+        const authority = !hasSides() || p === App.myPlayer;
         const b = App.byo[p];
         b.count--;
         if (b.count < 0) {
@@ -1243,7 +1378,7 @@
     };
     $('#btn-resign').onclick = () => {
       if (App.stage !== 'play' && App.stage !== 'scoring') return;
-      const c = isOnline() ? myColor() : App.game.turn;
+      const c = hasSides() ? myColor() : App.game.turn;
       confirmDialog(t('confirm.resign', { name: nameOfColor(c) }), (yes) => {
         if (yes) { cancelHiddenArm(); doResign(c, false); }
       });
@@ -1274,6 +1409,7 @@
 
   function showLobby() {
     if (App.net) { App.net.destroy(); App.net = null; }
+    stopAi();
     stopClock();
     HSAudio.hiddenCancel();
     App.game = null;

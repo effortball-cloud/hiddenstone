@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png" sizes="192x192" />
 <link rel="apple-touch-icon" href="assets/icon-180.png" />
 <link rel="manifest" href="manifest.webmanifest" />
-<link rel="stylesheet" href="css/style.css?v=5" />
+<link rel="stylesheet" href="css/style.css?v=6" />
 <!-- 온라인 멀티플레이용 PeerJS (없어도 같은 기기 2인 플레이는 동작) -->
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <!-- 공개 로비(방 목록)용 MQTT — 없어도 코드방·2인 플레이는 동작 -->
@@ -89,7 +89,12 @@
   <section class="lobby-section">
     <h2 data-i18n="lobby.modeHead">게임 모드</h2>
     <div class="mode-row">
-      <div class="mode-card selected" data-mode="hotseat">
+      <div class="mode-card selected" data-mode="ai">
+        <div class="mode-icon">🤖</div>
+        <div class="mode-name" data-i18n="mode.ai.name">AI와 대전</div>
+        <div class="mode-desc" data-i18n="mode.ai.desc">혼자서 바로 시작 — 난이도 3단계</div>
+      </div>
+      <div class="mode-card" data-mode="hotseat">
         <div class="mode-icon">👥</div>
         <div class="mode-name" data-i18n="mode.hotseat.name">같은 기기에서 2인</div>
         <div class="mode-desc" data-i18n="mode.hotseat.desc">1P/2P가 번갈아 조작 (비밀 단계는 화면 가림)</div>
@@ -131,6 +136,24 @@
     </div>
   </section>
 
+  <section class="lobby-section" id="ai-section">
+    <h2 data-i18n="lobby.aiHead">AI 난이도</h2>
+    <div class="mode-row">
+      <div class="ai-card mode-card" data-level="easy">
+        <div class="mode-name" data-i18n="ai.easy.name">입문</div>
+        <div class="mode-desc" data-i18n="ai.easy.desc">규칙을 익히는 중이라면. 실수도 하고 느슨하게 둡니다</div>
+      </div>
+      <div class="ai-card mode-card selected" data-level="normal">
+        <div class="mode-name" data-i18n="ai.normal.name">보통</div>
+        <div class="mode-desc" data-i18n="ai.normal.desc">따냄·활로를 챕니다. 히든과 스캔도 씁니다</div>
+      </div>
+      <div class="ai-card mode-card" data-level="hard">
+        <div class="mode-name" data-i18n="ai.hard.name">고수</div>
+        <div class="mode-desc" data-i18n="ai.hard.desc">한 수 앞을 내다보고 손해 보는 수를 피합니다</div>
+      </div>
+    </div>
+  </section>
+
   <section class="lobby-section" id="map-section">
     <h2 data-i18n="lobby.mapHead">맵 선택</h2>
     <div id="map-list" class="map-row"></div>
@@ -160,7 +183,7 @@
       <label id="name-p1-label" data-i18n="label.p1">1P 이름</label>
       <input id="name-p1" type="text" maxlength="12" data-i18n-ph="name.p1" placeholder="플레이어 1" />
     </div>
-    <div class="input-row" id="name-p2-row">
+    <div class="input-row" id="name-p2-row" style="display:none">
       <label data-i18n="label.p2">2P 이름</label>
       <input id="name-p2" type="text" maxlength="12" data-i18n-ph="name.p2" placeholder="플레이어 2" />
     </div>
@@ -318,13 +341,14 @@
   <button id="btn-sound" class="tool-btn" data-i18n-title="sound.on">🔊</button>
 </div>
 
-<script src="js/i18n.js?v=5"></script>
-<script src="js/guide.js?v=5"></script>
-<script src="js/maps.js?v=5"></script>
-<script src="js/engine.js?v=5"></script>
-<script src="js/ui.js?v=5"></script>
-<script src="js/net.js?v=5"></script>
-<script src="js/audio.js?v=5"></script>
-<script src="js/main.js?v=5"></script>
+<script src="js/i18n.js?v=6"></script>
+<script src="js/guide.js?v=6"></script>
+<script src="js/maps.js?v=6"></script>
+<script src="js/engine.js?v=6"></script>
+<script src="js/ai.js?v=6"></script>
+<script src="js/ui.js?v=6"></script>
+<script src="js/net.js?v=6"></script>
+<script src="js/audio.js?v=6"></script>
+<script src="js/main.js?v=6"></script>
 </body>
 </html>

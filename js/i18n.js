@@ -73,6 +73,20 @@
       'label.myName': '내 이름',
       'lobby.start': '게임 시작',
 
+      /* --- AI 대전 --- */
+      'mode.ai.name': 'AI와 대전',
+      'mode.ai.desc': '혼자서 바로 시작 — 난이도 3단계',
+      'lobby.aiHead': 'AI 난이도',
+      'ai.easy.name': '입문',
+      'ai.easy.desc': '규칙을 익히는 중이라면. 실수도 하고 느슨하게 둡니다',
+      'ai.normal.name': '보통',
+      'ai.normal.desc': '따냄·활로를 챕니다. 히든과 스캔도 씁니다',
+      'ai.hard.name': '고수',
+      'ai.hard.desc': '한 수 앞을 내다보고 손해 보는 수를 피합니다',
+      'ai.name.easy': 'AI · 입문',
+      'ai.name.normal': 'AI · 보통',
+      'ai.name.hard': 'AI · 고수',
+
       /* --- 맵 --- */
       'map.genesis.name': '제네시스',
       'map.genesis.desc': '공식 대회 표준. 4귀 3-3에 −점, 변 1선 한가운데 +점 (밸런스형).',
@@ -414,6 +428,20 @@
       'label.p2': 'P2 name',
       'label.myName': 'Your name',
       'lobby.start': 'START GAME',
+
+      /* --- AI opponent --- */
+      'mode.ai.name': 'Play the AI',
+      'mode.ai.desc': 'Start alone right now — three difficulty levels',
+      'lobby.aiHead': 'AI DIFFICULTY',
+      'ai.easy.name': 'Beginner',
+      'ai.easy.desc': 'For learning the rules. It makes mistakes and plays loosely',
+      'ai.normal.name': 'Standard',
+      'ai.normal.desc': 'Spots captures and liberties. Uses Hidden and Scan too',
+      'ai.hard.name': 'Strong',
+      'ai.hard.desc': 'Looks one move ahead and avoids losing exchanges',
+      'ai.name.easy': 'AI · Beginner',
+      'ai.name.normal': 'AI · Standard',
+      'ai.name.hard': 'AI · Strong',
 
       /* --- Maps --- */
       'map.genesis.name': 'Genesis',
