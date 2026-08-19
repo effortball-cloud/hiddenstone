@@ -60,7 +60,12 @@
       this.phase = 'base';      // base → betting → play → scoring → over
       this.baseCollisions = [];
 
-      this.hashHistory = [];    // 패(ko) 판정용 보드 해시 이력
+      /* 패(ko) 판정용 보드 형태 이력.
+       * 직전 형태만 보면 3수 이상 주기의 순환(따냄-되따냄 반복)을 못 막아서
+       * 대국이 영원히 안 끝난다. 실제로 AI끼리 2000수 넘게 순환한 사례가 있었다.
+       * 그래서 "이미 나왔던 형태는 다시 만들 수 없다"(위치 초과패)로 판정한다. */
+      this.hashHistory = [];
+      this.hashSeen = new Set();
       this.moveLog = [];
       this.lastMove = -1;       // 마지막 착수 idx (표식용)
       this.moveCount = 0;
@@ -173,6 +178,7 @@
       this.bids = bids || null;
       this.phase = 'play';
       this.hashHistory = [this.hash()];
+      this.hashSeen = new Set(this.hashHistory);
     }
 
     /* ---------- 3) 착수 ---------- */
@@ -296,9 +302,8 @@
       if (selfCaptured.length > 0) applyCapture(new Set(selfCaptured), enemy);
 
       const newHash = this.hash();
-      const h = this.hashHistory;
-      if (h.length >= 2 && newHash === h[h.length - 2]) {
-        // 패: 직전 형태 재현 금지 → 전부 되돌림
+      if (this.hashSeen.has(newHash)) {
+        // 이미 나왔던 형태 재현 금지 → 전부 되돌림
         this.board = snapBoard;
         this.isHidden = snapHidden;
         this.isBase = snapBase;
@@ -317,6 +322,7 @@
       const pointBonus = this._awardPoint(color, i, this.isHidden[i] === 1);
 
       this.hashHistory.push(newHash);
+      this.hashSeen.add(newHash);
       this.lastMove = selfCaptured.length > 0 ? -1 : i;
       this.moveCount++;
       this.passes = 0;

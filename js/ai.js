@@ -41,7 +41,7 @@
     hard: {
       jitter: 0.7,
       blunder: 0,
-      lookahead: 8,
+      lookahead: 12,
       selfAtariPenalty: 10,
       bid: [4, 7],           // 실측 적정가(약 7점) 아래로만 부른다
       hiddenWindow: [6, 26],
@@ -73,6 +73,7 @@
     c.hiddenQuota = { ...g.hiddenQuota };
     c.scanQuota = { ...g.scanQuota };
     c.hashHistory = g.hashHistory.slice();
+    c.hashSeen = new Set(g.hashSeen);   // 초과패 판정도 그대로 이어받는다
     c.moveLog = [];
     c.baseCollisions = g.baseCollisions.slice();
     return c;
@@ -199,7 +200,8 @@
    */
   function applyLookahead(view, me, cands, cfg) {
     const enemy = other(me);
-    for (const c of cands.slice(0, cfg.lookahead)) {
+    const top = cands.slice(0, cfg.lookahead);
+    for (const c of top) {
       const g = c.after;
       let bestForEnemy = -Infinity;
       for (let i = 0; i < g.board.length; i++) {
@@ -215,9 +217,13 @@
       if (bestForEnemy === -Infinity) bestForEnemy = material(g, enemy);
       // 상대 최선 응수 뒤의 내 우위 = -bestForEnemy
       c.v = c.v - c.mat + (-bestForEnemy);
+      c.looked = true;
     }
-    cands.sort((a, b) => b.v - a.v);
-    return cands;
+    /* 검토한 후보들 안에서만 다시 정렬해 돌려준다.
+     * 전체를 정렬하면 검토하지 않은(=낙관적인 1수 값 그대로인) 후보가
+     * 위로 떠올라 선견이 아무 의미가 없어진다. */
+    top.sort((a, b) => b.v - a.v);
+    return top;
   }
 
   /* ---------------- 히든 사용 판단 ---------------- */
@@ -350,15 +356,17 @@
       const bestRawGain = cands[0].rawV - baseline;
       if (settled && bestRawGain < cfg.passSlack) return { type: 'pass' };
 
-      if (cfg.lookahead > 0) cands = applyLookahead(view, me, cands, cfg);
+      // 4) 선견을 쓰면 "검토한 후보" 안에서만 고른다
+      const pool = cfg.lookahead > 0 ? applyLookahead(view, me, cands, cfg) : cands;
 
-      // 4) 실수 확률 (쉬움 난이도용)
-      let best = cands[0];
+      // 5) 실수 확률 (쉬움 난이도용)
+      let best = pool[0];
       if (cfg.blunder > 0 && Math.random() < cfg.blunder) {
-        best = pick(cands.slice(0, Math.max(1, Math.ceil(cands.length * 0.5))));
+        best = pick(pool.slice(0, Math.max(1, Math.ceil(pool.length * 0.5))));
       }
 
       // 6) 차선책 목록 (실제 판에서 패 등으로 막히면 순서대로 시도)
+      //    전체 후보에서 뽑아야 막혔을 때 시도할 자리가 남는다
       const alts = cands.filter((c) => c !== best).slice(0, 6).map((c) => ({ x: c.x, y: c.y }));
 
       // 5) 히든으로 둘지

@@ -716,3 +716,121 @@ body {
 @media (max-width: 520px) {
   .invite-row { flex-direction: column; }
 }
+
+/* =========================================================
+ * 전적 · 최근 대국
+ * ========================================================= */
+.rec-summary { display: flex; gap: 10px; margin-bottom: 12px; }
+.rec-stat {
+  flex: 1; text-align: center; background: var(--panel);
+  border: 1px solid var(--panel-edge); border-radius: 10px; padding: 12px 6px;
+}
+.rec-num { font-size: 26px; font-weight: 900; line-height: 1; color: var(--text); }
+.rec-num.win { color: var(--good); }
+.rec-num.loss { color: var(--bad); }
+.rec-num.rate { color: var(--orange-hi); }
+.rec-cap { font-size: 11.5px; color: var(--dim); margin-top: 5px; }
+
+.rec-bymode { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+.rec-chip {
+  font-size: 12px; color: var(--dim); background: rgba(0,0,0,0.25);
+  border: 1px solid var(--panel-edge); border-radius: 20px; padding: 5px 12px;
+}
+.rec-chip b { color: var(--text); font-weight: 700; }
+
+.rec-sub {
+  font-size: 13px; color: var(--dim); letter-spacing: 1px;
+  margin: 4px 0 10px; font-weight: 700;
+}
+.rec-note { font-size: 11.5px; color: #8a7250; line-height: 1.6; margin-top: 10px; }
+
+.recent-list { display: flex; flex-direction: column; gap: 7px; }
+.recent-item {
+  display: flex; align-items: center; gap: 11px;
+  background: var(--panel); border: 1px solid var(--panel-edge);
+  border-radius: 9px; padding: 10px 13px; cursor: pointer;
+  transition: border-color .15s, transform .08s;
+}
+.recent-item:hover { border-color: var(--dim); transform: translateY(-1px); }
+.ri-badge {
+  flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 900; color: #fff;
+  background: #4a4038;
+}
+.ri-badge.win { background: var(--good); }
+.ri-badge.loss { background: var(--bad); }
+/* span 이라 기본이 inline — 이름과 날짜가 한 줄에 붙어버린다 */
+.ri-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ri-opp { display: block; font-size: 14px; font-weight: 700;
+          overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ri-meta { display: block; font-size: 11.5px; color: var(--dim); }
+.ri-score { font-size: 13px; color: var(--orange-hi); font-weight: 700; white-space: nowrap; }
+.ri-go { font-size: 11.5px; color: var(--dim); white-space: nowrap; }
+.recent-empty {
+  text-align: center; color: var(--dim); font-size: 13px;
+  padding: 20px 10px; border: 1px dashed var(--panel-edge); border-radius: 9px;
+}
+
+/* =========================================================
+ * 기보 다시보기 화면
+ * ========================================================= */
+#screen-replay {
+  display: flex; flex-direction: column;
+  height: 100vh; padding: 10px 14px 76px;
+  max-width: 1180px; margin: 0 auto;
+}
+.rp-head { display: flex; align-items: center; gap: 14px; padding: 6px 2px 12px; }
+.rp-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+#rp-title { font-size: 16px; font-weight: 700; }
+.rp-meta { font-size: 12px; color: var(--dim); }
+
+.rp-body { flex: 1; display: flex; gap: 16px; min-height: 0; }
+.rp-board-wrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  min-width: 0; min-height: 0;
+}
+#replay-board { border-radius: 12px; box-shadow: 0 10px 34px rgba(0,0,0,0.55); }
+
+.rp-side {
+  width: 230px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px;
+}
+.rp-score {
+  background: var(--panel); border: 1px solid var(--panel-edge);
+  border-radius: 10px; padding: 12px;
+}
+.rp-sc { display: flex; align-items: center; gap: 9px; padding: 5px 0; }
+.rp-dot { width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0; }
+.rp-dot.black { background: radial-gradient(circle at 33% 30%, #666, #000); border: 1px solid #000; }
+.rp-dot.white { background: radial-gradient(circle at 33% 30%, #fff, #c8c5b8); border: 1px solid #999; }
+.rp-sc-name { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rp-sc-num { font-size: 20px; font-weight: 900; color: var(--orange-hi); }
+.rp-desc {
+  background: rgba(0,0,0,0.25); border: 1px solid var(--panel-edge);
+  border-radius: 10px; padding: 12px; font-size: 13.5px; line-height: 1.6;
+  min-height: 62px;
+}
+.rp-final { font-size: 13px; color: var(--warn); font-weight: 700; line-height: 1.6; }
+
+.rp-foot {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 0 4px; flex-wrap: wrap;
+}
+.rp-btn {
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--panel-edge); border-radius: 8px;
+  font-size: 14px; padding: 9px 14px; cursor: pointer; min-width: 46px;
+}
+.rp-btn:hover { border-color: var(--dim); }
+.rp-btn.primary { background: linear-gradient(180deg, var(--orange-hi), var(--orange)); border: none; }
+#rp-range { flex: 1; min-width: 120px; accent-color: var(--orange); height: 28px; }
+.rp-count { font-size: 13px; color: var(--dim); font-variant-numeric: tabular-nums; min-width: 74px; text-align: right; }
+
+@media (max-width: 900px) {
+  #screen-replay { height: auto; min-height: 100vh; }
+  .rp-body { flex-direction: column; align-items: center; }
+  .rp-side { width: 100%; max-width: 560px; }
+  .rp-board-wrap { width: 100%; max-width: 560px; aspect-ratio: 1; flex: none; }
+  .rec-summary { flex-wrap: wrap; }
+  .rec-stat { flex: 1 1 40%; }
+}

@@ -179,6 +179,11 @@
     guideDirty = true;
     if ($('#ov-help').classList.contains('show')) renderGuideIfNeeded();
     renderMapCards();
+    renderRecords();
+    if (Rp.rec && !$('#screen-replay').classList.contains('hidden')) {
+      paintReplayHeader();
+      seekReplay(Rp.at);
+    }
     if (App.lobby) renderRooms([...App.lobby.rooms.values()].map((r) => r.info));
     $('#name-p1-label').textContent = App.mode === 'hotseat' ? t('label.p1') : t('label.myName');
 
@@ -1029,7 +1034,32 @@
   }
 
   /* ---------------- 결과 ---------------- */
+  /* 대국이 끝나면 기보와 전적을 남긴다 (튜토리얼은 제외).
+   * 저장이 실패해도 결과 화면은 그대로 떠야 하므로 통째로 감싼다. */
+  function saveRecord(res, loserColor, reason) {
+    if (isTutorial() || !App.game || !App.base) return;
+    try {
+      window.HSRecords.add({
+        game: App.game,
+        mode: App.mode,
+        level: App.aiLevel,
+        mapId: App.mapId,
+        names: App.names,
+        playerColor: App.playerColor,
+        myPlayer: hasSides() ? App.myPlayer : null,
+        basePicks: App.base.picks,
+        deadSet: App.deadSet,
+        result: res || null,
+        loserColor: loserColor,
+        reason: reason,
+      });
+    } catch (e) {
+      console.warn('기보 저장 실패 (게임 진행에는 영향 없음)', e);
+    }
+  }
+
   function showResult(res, loserColor, reason) {
+    saveRecord(res, loserColor, reason);
     App._lastResult = { res, loserColor, reason };
     renderResult(res, loserColor, reason);
     // 내가 이겼는지 기준으로 차임 (핫시트는 항상 승리 차임)
@@ -1194,6 +1224,162 @@
         break;
       }
     }
+  }
+
+  /* ---------------- 전적 · 최근 대국 ---------------- */
+  function renderRecords() {
+    const R = window.HSRecords;
+    const st = R.stats();
+    const games = R.list(5);
+    const sec = $('#record-section');
+
+    // 기록이 없으면 섹션을 숨겨 로비를 깔끔하게 둔다
+    if (st.games === 0 && games.length === 0) { sec.style.display = 'none'; return; }
+    sec.style.display = 'block';
+
+    $('#rec-games').textContent = st.games;
+    $('#rec-wins').textContent = st.wins;
+    $('#rec-losses').textContent = st.losses;
+    $('#rec-rate').textContent = st.winRate == null ? '-' : st.winRate + '%';
+
+    // 모드별 전적 칩
+    const by = $('#rec-bymode');
+    by.innerHTML = '';
+    Object.keys(st.byMode).forEach((k) => {
+      const v = st.byMode[k];
+      const label = k.indexOf('ai:') === 0
+        ? t('rec.modeAi', { level: t('ai.' + k.slice(3) + '.name') })
+        : t('rec.modeOnline');
+      const el = document.createElement('span');
+      el.className = 'rec-chip';
+      el.innerHTML = escapeHtml(label) + ' <b>' +
+        escapeHtml(t('rec.chip', { w: v.w, l: v.l })) + '</b>';
+      by.appendChild(el);
+    });
+
+    // 최근 대국 목록
+    const list = $('#recent-list');
+    list.innerHTML = '';
+    if (!games.length) {
+      list.innerHTML = '<div class="recent-empty">' + escapeHtml(t('rec.empty')) + '</div>';
+      return;
+    }
+    games.forEach((rec) => {
+      const sm = window.HSReplay.summary(rec);
+      const el = document.createElement('div');
+      el.className = 'recent-item';
+      const badge = sm.won == null ? '' : sm.won ? ' win' : ' loss';
+      const sub = rec.mode === 'hotseat'
+        ? t('rec.hotseat')
+        : sm.when + ' \u00B7 ' + t('replay.meta', { map: sm.map, size: rec.size, moves: sm.moves });
+      el.innerHTML =
+        '<span class="ri-badge' + badge + '">' + escapeHtml(sm.outcome) + '</span>' +
+        '<span class="ri-main"><span class="ri-opp">' + escapeHtml(sm.opponent) + '</span>' +
+        '<span class="ri-meta">' + escapeHtml(sub) + '</span></span>' +
+        '<span class="ri-score">' + escapeHtml(sm.score) + '</span>' +
+        '<span class="ri-go">' + escapeHtml(t('rec.watch')) + '</span>';
+      el.onclick = () => openReplay(rec.id);
+      list.appendChild(el);
+    });
+  }
+
+  /* ---------------- 기보 다시보기 ---------------- */
+  const Rp = { rec: null, at: 0, view: null, timer: null };
+  const ICON_PLAY = '\u25B6';
+  const ICON_PAUSE = '\u23F8';
+
+  function openReplay(id) {
+    const rec = window.HSRecords.get(id);
+    if (!rec) return;
+    Rp.rec = rec;
+    Rp.at = 0;
+
+    $('#screen-lobby').classList.add('hidden');
+    $('#screen-game').classList.add('hidden');
+    $('#screen-replay').classList.remove('hidden');
+    hideOverlays();
+    teardownPublicLobby();
+
+    if (!Rp.view) {
+      Rp.view = new BoardView($('#replay-board'));
+      Rp.view.opts.ghost = null;
+    }
+    Rp.view.opts.interactive = false;     // 다시보기에서는 클릭으로 두지 않는다
+    Rp.view.opts.showHiddenFor = 'all';   // 끝난 대국이니 히든도 전부 공개
+    $('#rp-range').max = rec.moves.length;
+    $('#rp-range').value = 0;
+    paintReplayHeader();
+    seekReplay(0);
+  }
+
+  function paintReplayHeader() {
+    const rec = Rp.rec;
+    if (!rec) return;
+    $('#rp-title').textContent = t('replay.vs', { b: rec.names.b, w: rec.names.w });
+    $('#rp-meta').textContent = t('replay.meta',
+      { map: t('map.' + rec.map + '.name'), size: rec.size, moves: rec.moves.length });
+    $('#rp-name-b').textContent = rec.names.b;
+    $('#rp-name-w').textContent = rec.names.w;
+
+    const wname = rec.result.winner === 'b' ? rec.names.b : rec.names.w;
+    $('#rp-final').textContent = rec.result.b != null
+      ? t('replay.finalWin', { name: wname, score: rec.result.b + ' : ' + rec.result.w })
+      : t('replay.finalResign', { name: wname });
+  }
+
+  /* n수까지 재생한 판을 그린다 */
+  function seekReplay(n) {
+    const rec = Rp.rec;
+    if (!rec) return;
+    Rp.at = Math.max(0, Math.min(n, rec.moves.length));
+    const g = window.HSReplay.rebuild(rec, Rp.at);
+    Rp.view.setGame(g);
+    Rp.view.render();
+
+    const live = g.score(null, {});
+    $('#rp-score-b').textContent = live[BLACK].total;
+    $('#rp-score-w').textContent = live[WHITE].total;
+    $('#rp-desc').textContent = window.HSReplay.describe(rec, Rp.at);
+    $('#rp-range').value = Rp.at;
+    $('#rp-count').textContent = Rp.at + ' / ' + rec.moves.length;
+  }
+
+  function stopReplayPlay() {
+    if (Rp.timer) { clearInterval(Rp.timer); Rp.timer = null; }
+    $('#btn-rp-play').textContent = ICON_PLAY;
+  }
+
+  function toggleReplayPlay() {
+    if (Rp.timer) { stopReplayPlay(); return; }
+    if (Rp.at >= Rp.rec.moves.length) seekReplay(0);
+    Rp.timer = setInterval(() => {
+      if (!Rp.rec || Rp.at >= Rp.rec.moves.length) { stopReplayPlay(); return; }
+      seekReplay(Rp.at + 1);
+    }, 420);
+    $('#btn-rp-play').textContent = ICON_PAUSE;
+  }
+
+  function closeReplay() {
+    stopReplayPlay();
+    $('#screen-replay').classList.add('hidden');
+    showLobby();
+  }
+
+  function initReplay() {
+    $('#btn-rp-back').onclick = closeReplay;
+    $('#btn-rp-first').onclick = () => { stopReplayPlay(); seekReplay(0); };
+    $('#btn-rp-prev').onclick = () => { stopReplayPlay(); seekReplay(Rp.at - 1); };
+    $('#btn-rp-next').onclick = () => { stopReplayPlay(); seekReplay(Rp.at + 1); };
+    $('#btn-rp-last').onclick = () => { stopReplayPlay(); seekReplay(Rp.rec.moves.length); };
+    $('#btn-rp-play').onclick = toggleReplayPlay;
+    $('#rp-range').oninput = () => { stopReplayPlay(); seekReplay(parseInt($('#rp-range').value, 10)); };
+    document.addEventListener('keydown', (e) => {
+      if ($('#screen-replay').classList.contains('hidden')) return;
+      if (e.key === 'ArrowLeft') { stopReplayPlay(); seekReplay(Rp.at - 1); }
+      else if (e.key === 'ArrowRight') { stopReplayPlay(); seekReplay(Rp.at + 1); }
+      else if (e.key === ' ') { e.preventDefault(); toggleReplayPlay(); }
+      else if (e.key === 'Escape') closeReplay();
+    });
   }
 
   /* ---------------- 인터랙티브 튜토리얼 ---------------- */
@@ -1601,8 +1787,10 @@
     App._status = null;
     App._phase = null;
     hideOverlays();
+    $('#screen-replay').classList.add('hidden');
     $('#screen-game').classList.add('hidden');
     $('#screen-lobby').classList.remove('hidden');
+    renderRecords();
     HSAudio.lobby();
     // 공개방 모드로 돌아왔으면 로비 목록 다시 연결
     teardownPublicLobby();
@@ -1615,6 +1803,8 @@
     initGuide();
     initTutorial();
     initLobby();
+    initReplay();
+    renderRecords();
     wireButtons();
     autoJoinFromUrl();   // ?room=CODE 로 들어온 초대 손님 처리
   });
