@@ -41,6 +41,7 @@
       'mode.guest.name': '온라인 — 코드로 참가',
       'mode.guest.desc': '친구에게 받은 방 코드로 접속',
 
+      'lobby.fairplay': '⚖ <b>친선전용입니다.</b> 히든 착수 위치가 상대 브라우저에도 전달되기 때문에, 개발자 도구를 쓰면 기술적으로는 확인할 수 있습니다. 서로 믿고 두는 사이에서만 쓰세요.',
       'lobby.onlineWarn': '⚠ PeerJS 라이브러리를 불러오지 못해 온라인 모드를 사용할 수 없습니다. 인터넷 연결을 확인하세요.',
       'lobby.codeLabel': '방 코드',
       'lobby.codePh': '예: A3K7Q',
@@ -105,8 +106,8 @@
       'replay.outcomeLoss': '패',
       'replay.outcomeNone': '–',
       'replay.byResign': '불계',
-      'replay.finalWin': '🏆 {name} 승리 · {score}',
-      'replay.finalResign': '🏆 {name} 불계승',
+      'replay.finalWin': '🏆 승리 — {name} · {score}',
+      'replay.finalResign': '🏆 승리 — {name} (불계)',
       'replay.hiddenNote': '다시보기에서는 히든 돌도 전부 보입니다.',
       'replay.vs': '{b} vs {w}',
       'replay.meta': '{map} · {size}줄 · {moves}수',
@@ -186,6 +187,8 @@
       'name.p2': '플레이어 2',
       'name.me': '나',
       'name.opponent': '상대',
+      'name.defaultHost': '방장',
+      'name.defaultGuest': '게스트',
 
       /* --- 게임 헤더/공통 --- */
       'phase.base': '베이스빌드',
@@ -205,7 +208,7 @@
       /* --- 베이스빌드 --- */
       'handoff.title': '핸드오프',
       'handoff.ok': '준비 완료 — 시작',
-      'handoff.baseTitle': '{name}의 베이스빌드',
+      'handoff.baseTitle': '베이스빌드 — {name}',
       'handoff.baseDesc': '{other}는 화면을 보지 마세요! 몰래 돌 {n}개를 배치합니다.',
       'status.basePick': '{name} — 베이스 돌 {n}개를 몰래 배치하세요 (다시 클릭하면 취소)',
       'status.waitBase': '상대의 베이스빌드를 기다리는 중…',
@@ -216,11 +219,11 @@
 
       /* --- 턴베팅 --- */
       'status.betting': '필드를 보고 선공을 위해 덤(점수)을 베팅하세요.',
-      'handoff.betTitle': '{name}의 턴베팅',
+      'handoff.betTitle': '턴베팅 — {name}',
       'handoff.betDesc': '{other}는 화면을 보지 마세요! 선공을 원하는 만큼 베팅합니다.',
       'handoff.betDescShort': '{other}는 화면을 보지 마세요!',
-      'handoff.rebidTitle': '{name}의 재베팅',
-      'bet.title': '{name}의 턴베팅',
+      'handoff.rebidTitle': '재베팅 — {name}',
+      'bet.title': '턴베팅 — {name}',
       'bet.rebidSuffix': ' (재베팅 {n}회차)',
       'bet.note': '👀 <b>왼쪽 필드에서 공개된 베이스 위치를 확인</b>하고 베팅하세요.<br>더 높게 베팅한 쪽이 <b>흑 + 선공</b>이 되고, 베팅한 점수만큼 상대(후공)에게 줍니다.<br>동률이면 재베팅, 또 동률이면 선공 랜덤(흑백 유지).',
       'bet.unit': '점',
@@ -228,7 +231,7 @@
       'status.waitBid': '상대의 베팅을 기다리는 중…',
       'toast.bidTie': '베팅 동률({v}점)! 재베팅합니다.',
       'toast.bidTieRandom': '재베팅도 동률! 선공을 무작위로 정합니다. (흑백은 바뀌지 않음)',
-      'toast.betResult': '{winner} {v}점 베팅으로 선공({color})! {loser}는 {bid}점을 받고 시작합니다.',
+      'toast.betResult': '선공: {winner} ({color}) — {v}점 베팅. {loser}에게 {bid}점.',
 
       /* --- 대국 --- */
       'status.turn': '{name} ({color}) 차례',
@@ -251,10 +254,10 @@
       'toast.hiddenLocalOk': '히든 착수 완료 (화면에 표시되지 않습니다. 위치를 기억하세요!)',
       'toast.hiddenRevealed': '히든 돌이 공개되었습니다!',
 
-      'toast.scanRemoteFound': '⚠ 상대가 스캔으로 내 히든을 확인했습니다! (+2점 획득)',
-      'toast.scanRemote': '상대가 스캔을 사용했습니다. (+2점 획득)',
-      'toast.scanFound': '스캔 성공! 히든을 찾았습니다. (상대 +2점)',
-      'toast.scanMiss': '스캔 실패… 히든이 없습니다. (상대 +2점)',
+      'toast.scanRemoteFound': '⚠ 상대가 스캔으로 내 히든을 찾았습니다! 스캔 대가로 내가 2점을 얻습니다.',
+      'toast.scanRemote': '상대가 스캔을 사용했습니다. 스캔 대가로 내가 2점을 얻습니다.',
+      'toast.scanFound': '스캔 성공! 히든을 찾았습니다. (대가로 상대에게 2점)',
+      'toast.scanMiss': '스캔 실패… 히든이 없습니다. (대가로 상대에게 2점)',
 
       'toast.probeMine': '⚠ 상대가 내 히든을 발견했습니다!',
       'toast.probeRemote': '상대가 히든을 발견했습니다!',
@@ -287,10 +290,10 @@
       'res.total': '합계',
       'res.capNote': '따낸 돌: ● {b}개 · ○ {w}개 (따냄은 잡힌 쪽 점수 감소로 반영)',
       'res.tieNote': '동점 → 후공 승리!',
-      'res.winner': '🏆 {name} ({color}) 승리!',
-      'res.winnerBy': '🏆 {name} ({color}) {how}! — {loser} {why}',
+      'res.winner': '🏆 승리 — {name} ({color})',
+      'res.winnerBy': '🏆 승리 — {name} ({color}) · {how} ({loser} {why})',
       'win.timeout': '시간승',
-      'win.left': '승리',
+      'win.left': '상대 이탈',
       'win.resign': '불계승',
       'why.timeout': '초읽기 소진(시간패)',
       'why.left': '접속 종료 (기권 처리)',
@@ -314,7 +317,7 @@
       'confirm.hidden': '히든 착수: 착수 후에는 화면에 표시되지 않습니다. 상대가 화면을 보고 있지 않은지 확인하세요!',
       'confirm.scan': '스캔을 사용하면 성공/실패와 관계없이 상대에게 2점을 줍니다. 사용할까요?',
       'confirm.pass': '패스하시겠습니까? 양측이 연속 패스하면 계가로 넘어갑니다.',
-      'confirm.resign': '{name} — 정말 기권하시겠습니까?',
+      'confirm.resign': '정말 기권하시겠습니까? ({name} 패배로 기록됩니다)',
       'confirm.leaveGame': '대국 중에 나가면 기권(패배) 처리되고 상대가 승리합니다. 정말 나가시겠습니까?',
       'confirm.leave': '게임을 나가고 로비로 돌아갈까요?',
 
@@ -456,7 +459,7 @@
       /* --- Brand --- */
       'app.title': 'HIDDENSTONE — Strategic Go Battle',
       'app.subtitle': 'One move they never see — <b>HIDDENSTONE</b>',
-      'app.tagline': 'Base Build · Komi Bidding · Hidden · Scan — Go with a mind game',
+      'app.tagline': 'Base Build · Komi Bidding · Hidden · Scan — a mind-game twist on Go',
       'app.footer': 'A strategy battle game built on Go rules · Base Build / Komi Bidding / Hidden / Scan',
       'lang.name': 'English',
       'lang.switchTo': '한국어로 전환',
@@ -478,6 +481,7 @@
       'mode.guest.name': 'Online — Join by code',
       'mode.guest.desc': 'Enter the room code your friend gave you',
 
+      'lobby.fairplay': '⚖ <b>Friendly games only.</b> A hidden stone’s position is sent to your opponent’s browser, so it can technically be found with developer tools. Play online only with people you trust.',
       'lobby.onlineWarn': '⚠ PeerJS failed to load, so online modes are unavailable. Check your internet connection.',
       'lobby.codeLabel': 'Room code',
       'lobby.codePh': 'e.g. A3K7Q',
@@ -542,8 +546,8 @@
       'replay.outcomeLoss': 'L',
       'replay.outcomeNone': '–',
       'replay.byResign': 'resignation',
-      'replay.finalWin': '🏆 {name} wins · {score}',
-      'replay.finalResign': '🏆 {name} wins by resignation',
+      'replay.finalWin': '🏆 Winner — {name} · {score}',
+      'replay.finalResign': '🏆 Winner — {name} (by resignation)',
       'replay.hiddenNote': 'Hidden stones are all revealed in a replay.',
       'replay.vs': '{b} vs {w}',
       'replay.meta': '{map} · {size}×{size} · {moves} moves',
@@ -623,6 +627,8 @@
       'name.p2': 'Player 2',
       'name.me': 'You',
       'name.opponent': 'Opponent',
+      'name.defaultHost': 'Host',
+      'name.defaultGuest': 'Guest',
 
       /* --- Game header --- */
       'phase.base': 'BASE BUILD',
@@ -642,7 +648,7 @@
       /* --- Base build --- */
       'handoff.title': 'Hand off',
       'handoff.ok': 'Ready — start',
-      'handoff.baseTitle': '{name}’s base build',
+      'handoff.baseTitle': 'Base Build — {name}',
       'handoff.baseDesc': '{other}, look away! You are secretly placing {n} stones.',
       'status.basePick': '{name} — secretly place {n} base stones (click again to undo)',
       'status.waitBase': 'Waiting for your opponent’s base build…',
@@ -653,11 +659,11 @@
 
       /* --- Turn bidding --- */
       'status.betting': 'Study the board and bid komi for the first move.',
-      'handoff.betTitle': '{name}’s bid',
+      'handoff.betTitle': 'Bid — {name}',
       'handoff.betDesc': '{other}, look away! Bid as much as you want the first move.',
       'handoff.betDescShort': '{other}, look away!',
-      'handoff.rebidTitle': '{name}’s re-bid',
-      'bet.title': '{name}’s bid',
+      'handoff.rebidTitle': 'Re-bid — {name}',
+      'bet.title': 'Bid — {name}',
       'bet.rebidSuffix': ' (re-bid, round {n})',
       'bet.note': '👀 <b>Check the revealed base positions on the field</b> before you bid.<br>The higher bid takes <b>Black + the first move</b>, and pays that many points to the opponent.<br>A tie means a re-bid; a second tie picks the first move at random (colors stay).',
       'bet.unit': 'pts',
@@ -665,7 +671,7 @@
       'status.waitBid': 'Waiting for your opponent’s bid…',
       'toast.bidTie': 'Tied bid ({v} pts)! Re-bidding.',
       'toast.bidTieRandom': 'Tied again! The first move is decided at random. (Colors stay the same.)',
-      'toast.betResult': '{winner} bid {v} and takes the first move as {color}! {loser} starts with {bid} points.',
+      'toast.betResult': 'First move: {winner} ({color}) — bid {v}. Points to {loser}: {bid}.',
 
       /* --- Match --- */
       'status.turn': '{name} ({color}) to play',
@@ -688,10 +694,10 @@
       'toast.hiddenLocalOk': 'Hidden stone placed (not drawn on screen — remember where it is!)',
       'toast.hiddenRevealed': 'A hidden stone has been revealed!',
 
-      'toast.scanRemoteFound': '⚠ Your opponent scanned and found your hidden stone! (they gain +2)',
-      'toast.scanRemote': 'Your opponent used a scan. (you gain +2)',
-      'toast.scanFound': 'Scan hit! You found the hidden stone. (opponent +2)',
-      'toast.scanMiss': 'Scan missed… nothing hidden there. (opponent +2)',
+      'toast.scanRemoteFound': '⚠ Your opponent scanned and found your hidden stone! You gain 2 points for it.',
+      'toast.scanRemote': 'Your opponent used a scan. You gain 2 points for it.',
+      'toast.scanFound': 'Scan hit! You found the hidden stone. (costs you 2 points to the opponent)',
+      'toast.scanMiss': 'Scan missed… nothing hidden there. (costs you 2 points to the opponent)',
 
       'toast.probeMine': '⚠ Your opponent found your hidden stone!',
       'toast.probeRemote': 'Your opponent found a hidden stone!',
@@ -724,11 +730,11 @@
       'res.total': 'Total',
       'res.capNote': 'Captured: ● {b} · ○ {w} (captures are scored as a loss for the captured side)',
       'res.tieNote': 'Tied → the second player wins!',
-      'res.winner': '🏆 {name} ({color}) wins!',
-      'res.winnerBy': '🏆 {name} ({color}) {how}! — {loser} {why}',
-      'win.timeout': 'wins on time',
-      'win.left': 'wins',
-      'win.resign': 'wins by resignation',
+      'res.winner': '🏆 Winner — {name} ({color})',
+      'res.winnerBy': '🏆 Winner — {name} ({color}) · {how} ({loser} {why})',
+      'win.timeout': 'on time',
+      'win.left': 'opponent left',
+      'win.resign': 'by resignation',
       'why.timeout': 'ran out of byo-yomi',
       'why.left': 'disconnected (counted as resignation)',
       'why.resign': 'resigned',
@@ -751,7 +757,7 @@
       'confirm.hidden': 'Hidden move: it will not be drawn on screen once played. Make sure your opponent is not watching!',
       'confirm.scan': 'A scan gives your opponent 2 points whether it hits or misses. Use it?',
       'confirm.pass': 'Pass? If both players pass in a row, the game moves to scoring.',
-      'confirm.resign': '{name} — really resign?',
+      'confirm.resign': 'Do you really want to resign? This is recorded as a loss for {name}.',
       'confirm.leaveGame': 'Leaving mid-match counts as a resignation and your opponent wins. Leave anyway?',
       'confirm.leave': 'Leave the game and return to the lobby?',
 
@@ -760,7 +766,7 @@
       'wait.default': 'Waiting…',
       'wait.forOpponent': 'Waiting for an opponent to connect…',
       'wait.joining': 'Connecting to the room…',
-      'wait.joiningRoom': 'Connecting to {name}’s room…',
+      'wait.joiningRoom': 'Connecting to the room hosted by {name}…',
       'wait.publicOpen': 'Public room is open. Waiting for someone to join from the list…',
       'wait.copyCode': 'Copy code',
       'wait.codeNote': 'Send this code to your friend. On the same page they pick<br>“Online — Join by code” and enter it.',

@@ -348,7 +348,7 @@ body {
 /* ---------------- 토스트 ---------------- */
 #toasts {
   position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; gap: 8px; z-index: 300;
+  display: flex; flex-direction: column; gap: 8px; z-index: 600;
   pointer-events: none;
   align-items: center;
 }
@@ -369,8 +369,9 @@ body {
 .toast.warn { border-left-color: var(--warn); }
 
 /* ---------------- 오버레이 ---------------- */
+/* 고정 도구(z 400)보다 위 — 모달의 닫기/확정 버튼이 가려지면 안 된다 */
 .overlay {
-  position: fixed; inset: 0; z-index: 200;
+  position: fixed; inset: 0; z-index: 500;
   background: rgba(16,9,3,0.87);
   backdrop-filter: blur(4px);
   display: none;
@@ -452,6 +453,13 @@ body {
 }
 
 /* ---------------- 반응형 ---------------- */
+@media (max-width: 760px) {
+  /* 좁은 화면에서는 상태 문구를 칩·버튼 아래 한 줄로 내린다.
+     안 그러면 flex가 문구를 아주 좁은 세로 칸으로 밀어넣는다. */
+  .game-head { flex-wrap: wrap; row-gap: 6px; }
+  #status-msg { order: 3; flex: 1 0 100%; font-size: 13.5px; line-height: 1.5; }
+}
+
 @media (max-width: 900px) {
   .game-body { flex-direction: column; align-items: center; overflow-y: auto; }
   .player-panel {
@@ -834,3 +842,30 @@ body {
   .rec-summary { flex-wrap: wrap; }
   .rec-stat { flex: 1 1 40%; }
 }
+
+/* ---------------- 접근성: 선택 카드가 진짜 <button> 이 됐다 ----------------
+ * 버튼 기본 스타일(가운데 정렬·시스템 폰트)을 카드 모양으로 되돌린다. */
+button.mode-card, button.map-card {
+  font: inherit; color: inherit; text-align: left;
+  appearance: none; -webkit-appearance: none;
+}
+/* 키보드 포커스가 어디 있는지 항상 보이게 */
+button.mode-card:focus-visible,
+button.map-card:focus-visible,
+.small-btn:focus-visible, .mini-btn:focus-visible,
+.big-btn:focus-visible, .foot-btn:focus-visible,
+.rp-btn:focus-visible, .lang-chip:focus-visible, .bgm-chip:focus-visible,
+.recent-item:focus-visible, #board:focus-visible {
+  outline: 3px solid var(--blue-hi);
+  outline-offset: 2px;
+}
+#board:focus-visible { outline-offset: 4px; }
+
+/* 온라인 공정성 고지 — 히든 위치가 상대 브라우저로 전달된다는 사실 */
+.fairplay-note {
+  margin-top: 12px; padding: 10px 13px;
+  background: rgba(224,160,32,0.10);
+  border: 1px solid rgba(224,160,32,0.35); border-radius: 9px;
+  color: var(--dim); font-size: 12.5px; line-height: 1.6;
+}
+.fairplay-note b { color: var(--warn); }

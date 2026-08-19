@@ -58,6 +58,13 @@
   App.names[1] = t('name.p1');
   App.names[2] = t('name.p2');
 
+  /* 상대에게 보낼 이름. 입력이 없으면 "나/You" 대신 역할 이름을 보낸다
+   * (둘 다 입력을 안 하면 양쪽 패널이 모두 "나"로 보였다). */
+  function netName(role) {
+    const typed = $('#name-p1').value.trim();
+    return typed || t(role === 'host' ? 'name.defaultHost' : 'name.defaultGuest');
+  }
+
   const colorPlayer = (c) => (App.playerColor[1] === c ? 1 : 2);
   const nameOfColor = (c) => App.names[colorPlayer(c)];
   const colorName = (c) => t(c === BLACK ? 'color.black' : 'color.white');
@@ -173,6 +180,20 @@
     syncLangUI();
   }
 
+  /* 사용자가 직접 입력하지 않은 "기본 이름"이면 새 언어의 것으로 바꿔준다.
+   * 예전에는 name.p1/p2만 검사해서 "나"·"상대"·"AI · 보통"이 영문 화면에 그대로 남았다. */
+  const DEFAULT_NAME_KEYS = [
+    'name.p1', 'name.p2', 'name.me', 'name.opponent',
+    'name.defaultHost', 'name.defaultGuest',
+    'ai.name.easy', 'ai.name.normal', 'ai.name.hard',
+  ];
+  function retranslateName(v) {
+    for (const k of DEFAULT_NAME_KEYS) {
+      if (v === I18n.inLang('ko', k) || v === I18n.inLang('en', k)) return t(k);
+    }
+    return v;   // 직접 입력한 이름은 건드리지 않는다
+  }
+
   /* 언어 전환 후 동적으로 만들어진 문구를 전부 다시 만든다 */
   function relabelUI() {
     syncLangUI();
@@ -188,24 +209,8 @@
     $('#name-p1-label').textContent = App.mode === 'hotseat' ? t('label.p1') : t('label.myName');
 
     // 기본 이름을 쓰는 중이면 새 언어의 기본 이름으로 따라간다
-    for (const p of [1, 2]) {
-      const key = p === 1 ? 'name.p1' : 'name.p2';
-      if (App.names[p] === I18n.inLang('ko', key) || App.names[p] === I18n.inLang('en', key)) {
-        App.names[p] = t(key);
-      }
-    }
-
-    // AI 이름도 새 언어로 (기본 이름을 쓰고 있을 때만)
-    if (isSolo()) {
-      const ap = aiPlayer();
-      for (const lv of AI.levels) {
-        if (App.names[ap] === I18n.inLang('ko', 'ai.name.' + lv) ||
-            App.names[ap] === I18n.inLang('en', 'ai.name.' + lv)) {
-          App.names[ap] = t('ai.name.' + App.aiLevel);
-          break;
-        }
-      }
-    }
+    App.names[1] = retranslateName(App.names[1]);
+    App.names[2] = retranslateName(App.names[2]);
 
     if (isTutorial() && window.HSTutorial) {
       window.HSTutorial.goto(window.HSTutorial.index());   // 현재 단계를 새 언어로 다시
@@ -234,7 +239,8 @@
     if (!mapList) return;
     mapList.innerHTML = '';
     Object.values(MAPS).forEach((m) => {
-      const el = document.createElement('div');
+      const el = document.createElement('button');
+      el.type = 'button';
       el.className = 'map-card' + (m.id === App.mapId ? ' selected' : '');
       el.innerHTML = `<div class="map-name">${escapeHtml(mapName(m.id))}</div>
         <div class="map-size">${m.size}×${m.size}</div>
@@ -244,14 +250,23 @@
         App.mapId = m.id;
         $$('.map-card').forEach((c) => c.classList.remove('selected'));
         el.classList.add('selected');
+        syncPressed();
       };
       mapList.appendChild(el);
     });
+    syncPressed();
   }
 
   /* 선택된 모드에 맞춰 로비 UI를 정리한다 (첫 진입/모드 변경 공용) */
+  function syncPressed() {
+    $$('.mode-card[data-mode], .ai-card, .byo-card, .map-card').forEach((el) => {
+      el.setAttribute('aria-pressed', el.classList.contains('selected') ? 'true' : 'false');
+    });
+  }
+
   function applyModeUI(m) {
     App.mode = m;
+    syncPressed();
     $('#join-row').style.display = m === 'guest' ? 'flex' : 'none';
     $('#name-p2-row').style.display = m === 'hotseat' ? 'flex' : 'none';
     $('#ai-section').style.display = m === 'ai' ? 'block' : 'none';
@@ -259,6 +274,9 @@
     $('#map-section').style.display = (m === 'guest') ? 'none' : 'block';
     $('#name-p1-label').textContent = m === 'hotseat' ? t('label.p1') : t('label.myName');
     $('#online-public').style.display = m === 'public' ? 'block' : 'none';
+    // 히든 위치가 상대 브라우저로 전달된다는 사실을 온라인 모드에서 알린다
+    $('#online-fairplay').style.display =
+      (m === 'public' || m === 'host' || m === 'guest') ? 'block' : 'none';
     $('#btn-start').style.display = m === 'public' ? 'none' : 'block';
     if (m === 'public') initPublicLobby();
     else teardownPublicLobby();
@@ -302,6 +320,7 @@
         $$('.ai-card').forEach((c) => c.classList.remove('selected'));
         card.classList.add('selected');
         App.aiLevel = card.dataset.level;
+        syncPressed();
       };
     });
 
@@ -310,6 +329,7 @@
       card.onclick = () => {
         $$('.byo-card').forEach((c) => c.classList.remove('selected'));
         card.classList.add('selected');
+        syncPressed();
       };
     });
 
@@ -383,7 +403,7 @@
         showOverlay('#ov-wait');
       });
       App.net.on('open', () => {
-        App.net.send({ t: 'hello', name: App.names[1] });
+        App.net.send({ t: 'hello', name: netName('host') });
       });
       App.net.host();
     } else {
@@ -396,7 +416,7 @@
       $('#room-code-row').style.display = 'none';
       showOverlay('#ov-wait');
       App.net.on('open', () => {
-        App.net.send({ t: 'hello', name: App.names[2] });
+        App.net.send({ t: 'hello', name: netName('guest') });
       });
       App.net.join(code);
     }
@@ -444,7 +464,7 @@
     $('#wait-msg').textContent = t('wait.invited', { code });
     $('#room-code-row').style.display = 'none';
     showOverlay('#ov-wait');
-    App.net.on('open', () => { App.net.send({ t: 'hello', name: App.names[2] }); });
+    App.net.on('open', () => { App.net.send({ t: 'hello', name: netName('guest') }); });
     App.net.join(code);
     return true;
   }
@@ -516,7 +536,7 @@
     wireNet();
     App.net.on('waiting', (code) => {
       App.publicCode = code;
-      if (App.lobby) App.lobby.announce({ id: code, name: App.names[1], map: App.mapId, size: MAPS[App.mapId].size });
+      if (App.lobby) App.lobby.announce({ id: code, name: netName('host'), map: App.mapId, size: MAPS[App.mapId].size });
       $('#wait-msg').textContent = t('wait.publicOpen');
       showRoomCode(code);
       showOverlay('#ov-wait');
@@ -524,7 +544,7 @@
     App.net.on('open', () => {
       // 상대 접속 → 방을 목록에서 내림
       if (App.lobby) App.lobby.closeRoom();
-      App.net.send({ t: 'hello', name: App.names[1] });
+      App.net.send({ t: 'hello', name: netName('host') });
     });
     App.net.host();
   }
@@ -540,7 +560,7 @@
     $('#room-code-row').style.display = 'none';
     showOverlay('#ov-wait');
     App.net.on('open', () => {
-      App.net.send({ t: 'hello', name: App.names[2] });
+      App.net.send({ t: 'hello', name: netName('guest') });
     });
     App.net.join(roomId);
   }
@@ -581,6 +601,7 @@
     App.view.opts.territory = null;
     App.view.setGame(App.game);
 
+    refreshAll();     // 이전 대국의 점수·시계·스캔 잔량이 남지 않도록 먼저 갱신
     startClock();
     enterBasePhase();
   }
@@ -630,6 +651,7 @@
 
   function updateBaseUI() {
     if (App.stage !== 'base') return;
+    refreshPanels();
     const p = App.base.current;
     const nBtn = $('#btn-confirm');
     nBtn.textContent = t('btn.baseConfirm', { cur: App.base.picks[p].length, max: App.game.baseCount });
@@ -690,6 +712,7 @@
   /* ---------------- 2) 턴베팅 ---------------- */
   function enterBettingPhase() {
     App.stage = 'betting';
+    refreshPanels();
     setPhaseChip('phase.betting');
     $('#btn-confirm').style.display = 'none';
     setStatus('status.betting');
@@ -1073,17 +1096,19 @@
     const box = $('#result-table');
     if (res) {
       const B = res[BLACK], W = res[WHITE];
+      /* 0점에 +0 / −0 이라고 쓰면 어색하다 */
+      const signed = (v, sign) => (v === 0 ? '0' : sign + v);
       const row = (label, b, w) => `<tr><td>${escapeHtml(label)}</td><td>${b}</td><td>${w}</td></tr>`;
       box.innerHTML = `<table>
         <tr><th></th><th>● ${escapeHtml(nameOfColor(BLACK))}</th><th>○ ${escapeHtml(nameOfColor(WHITE))}</th></tr>
         ${row(t('res.stones'), B.stones, W.stones)}
         ${row(t('res.bases'), B.bases * 5, W.bases * 5)}
         ${row(t('res.territory'), B.territory, W.territory)}
-        ${row(t('res.plus'), '+' + B.plus * 5, '+' + W.plus * 5)}
-        ${row(t('res.minus'), '−' + B.minus * 5, '−' + W.minus * 5)}
+        ${row(t('res.plus'), signed(B.plus * 5, '+'), signed(W.plus * 5, '+'))}
+        ${row(t('res.minus'), signed(B.minus * 5, '−'), signed(W.minus * 5, '−'))}
         ${row(t('res.betting'), B.betting, W.betting)}
         ${row(t('res.scanBonus'), B.scanBonus, W.scanBonus)}
-        ${(B.timePenalty || W.timePenalty) ? row(t('res.timePenalty'), '−' + B.timePenalty, '−' + W.timePenalty) : ''}
+        ${(B.timePenalty || W.timePenalty) ? row(t('res.timePenalty'), signed(B.timePenalty, '−'), signed(W.timePenalty, '−')) : ''}
         <tr class="total"><td>${escapeHtml(t('res.total'))}</td><td>${B.total}</td><td>${W.total}</td></tr>
       </table>
       <p class="cap-note">${escapeHtml(t('res.capNote', { b: B.captures, w: W.captures }))}</p>
@@ -1561,6 +1586,32 @@
     }
     if (!placed) { doPass(c, true); return; }
     if (App.game && App.game.turn === c && App.stage === 'play') again(depth + 1, 500);
+  }
+
+  /* 점수판만 갱신한다. 베이스빌드·턴베팅 단계에서도 안전하게 부를 수 있다. */
+  function refreshPanels() {
+    const g = App.game;
+    if (!g) return;
+    const live = g.score(null, { live: true });
+    for (const c of [BLACK, WHITE]) {
+      const panel = c === BLACK ? '#panel-black' : '#panel-white';
+      const p = colorPlayer(c);
+      const s = live[c];
+      $(panel + ' .p-name').textContent = App.names[p];
+      $(panel + ' .p-score').textContent = s.total;
+      $(panel + ' .p-detail').innerHTML = t('panel.detail', {
+        stones: s.stones, bases: s.bases * 5, territory: s.territory,
+        plus: s.plus * 5, minus: s.minus * 5, captures: s.captures,
+        betting: s.betting, scan: s.scanBonus,
+      }) + (s.timePenalty ? t('panel.timePenalty', { n: s.timePenalty }) : '');
+      const hBtn = $(panel + ' .btn-hidden'), sBtn = $(panel + ' .btn-scan');
+      hBtn.querySelector('.cnt').textContent = g.hiddenQuota[c] - g.hiddenUsed[c];
+      sBtn.querySelector('.cnt').textContent = g.scanQuota[c] - g.scanUsed[c];
+      hBtn.disabled = true;
+      sBtn.disabled = true;
+      $(panel).classList.remove('active');
+    }
+    updateClockDisplay();
   }
 
   /* ---------------- 패널/시계 갱신 ---------------- */

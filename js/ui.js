@@ -52,10 +52,54 @@
         if (p && this.onClick && this.opts.interactive) this.onClick(p);
       });
 
+      /* 키보드 조작 — 마우스 없이도 둘 수 있어야 한다.
+       * 화살표로 커서를 옮기고 Enter/Space로 착수한다. hover를 그대로 커서로 쓰므로
+       * 기존 고스트 표시가 그대로 재사용된다. */
+      canvas.addEventListener('keydown', (e) => {
+        if (!this.game || !this.opts.interactive) return;
+        const n = this.game.size;
+        const step = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+        if (step) {
+          e.preventDefault();
+          const cur = this.hover || { x: (n - 1) >> 1, y: (n - 1) >> 1 };
+          this.hover = {
+            x: Math.max(0, Math.min(n - 1, cur.x + step[0])),
+            y: Math.max(0, Math.min(n - 1, cur.y + step[1])),
+          };
+          this.announceCursor();
+          this.render();
+          return;
+        }
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (this.hover && this.onClick) this.onClick(this.hover);
+        }
+      });
+      canvas.addEventListener('focus', () => {
+        if (!this.hover && this.game) {
+          const n = this.game.size;
+          this.hover = { x: (n - 1) >> 1, y: (n - 1) >> 1 };
+          this.announceCursor();
+          this.render();
+        }
+      });
+
       if (global.ResizeObserver) {
         new ResizeObserver(() => this.resize()).observe(canvas.parentElement || canvas);
       }
       global.addEventListener('resize', () => this.resize());
+    }
+
+    /* 현재 커서 좌표를 캔버스 라벨에 반영해 스크린리더가 읽을 수 있게 한다 */
+    announceCursor() {
+      if (!this.game || !this.hover) return;
+      const n = this.game.size;
+      const coord = BoardView.colLabel(this.hover.x) + String(n - this.hover.y);
+      const i = this.game.idx(this.hover.x, this.hover.y);
+      const c = this.game.board[i];
+      const what = c === EMPTY ? 'empty' : (c === BLACK ? 'black stone' : 'white stone');
+      this.canvas.setAttribute('aria-label', 'Board cursor ' + coord + ' — ' + what +
+        '. Arrow keys move, Enter plays.');
     }
 
     _samePt(a, b) {

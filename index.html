@@ -89,32 +89,33 @@
   <section class="lobby-section">
     <h2 data-i18n="lobby.modeHead">게임 모드</h2>
     <div class="mode-row">
-      <div class="mode-card selected" data-mode="ai">
+      <button type="button" class="mode-card selected" data-mode="ai">
         <div class="mode-icon">🤖</div>
         <div class="mode-name" data-i18n="mode.ai.name">AI와 대전</div>
         <div class="mode-desc" data-i18n="mode.ai.desc">혼자서 바로 시작 — 난이도 3단계</div>
-      </div>
-      <div class="mode-card" data-mode="hotseat">
+      </button>
+      <button type="button" class="mode-card" data-mode="hotseat">
         <div class="mode-icon">👥</div>
         <div class="mode-name" data-i18n="mode.hotseat.name">같은 기기에서 2인</div>
         <div class="mode-desc" data-i18n="mode.hotseat.desc">1P/2P가 번갈아 조작 (비밀 단계는 화면 가림)</div>
-      </div>
-      <div class="mode-card" data-mode="public">
+      </button>
+      <button type="button" class="mode-card" data-mode="public">
         <div class="mode-icon">🌐</div>
         <div class="mode-name" data-i18n="mode.public.name">온라인 — 공개방</div>
         <div class="mode-desc" data-i18n="mode.public.desc">열린 방을 목록에서 보고 코드 없이 바로 참가</div>
-      </div>
-      <div class="mode-card" data-mode="host">
+      </button>
+      <button type="button" class="mode-card" data-mode="host">
         <div class="mode-icon">📡</div>
         <div class="mode-name" data-i18n="mode.host.name">온라인 — 코드방 만들기</div>
         <div class="mode-desc" data-i18n="mode.host.desc">비공개 방 코드를 만들어 친구에게 전달</div>
-      </div>
-      <div class="mode-card" data-mode="guest">
+      </button>
+      <button type="button" class="mode-card" data-mode="guest">
         <div class="mode-icon">🔑</div>
         <div class="mode-name" data-i18n="mode.guest.name">온라인 — 코드로 참가</div>
         <div class="mode-desc" data-i18n="mode.guest.desc">친구에게 받은 방 코드로 접속</div>
-      </div>
+      </button>
     </div>
+    <p id="online-fairplay" style="display:none" class="fairplay-note" data-i18n-html="lobby.fairplay">—</p>
     <p id="online-warn" style="display:none" class="warn-note" data-i18n="lobby.onlineWarn">
       ⚠ PeerJS 라이브러리를 불러오지 못해 온라인 모드를 사용할 수 없습니다. 인터넷 연결을 확인하세요.
     </p>
@@ -139,18 +140,18 @@
   <section class="lobby-section" id="ai-section">
     <h2 data-i18n="lobby.aiHead">AI 난이도</h2>
     <div class="mode-row">
-      <div class="ai-card mode-card" data-level="easy">
+      <button type="button" class="ai-card mode-card" data-level="easy">
         <div class="mode-name" data-i18n="ai.easy.name">입문</div>
         <div class="mode-desc" data-i18n="ai.easy.desc">규칙을 익히는 중이라면. 실수도 하고 느슨하게 둡니다</div>
-      </div>
-      <div class="ai-card mode-card selected" data-level="normal">
+      </button>
+      <button type="button" class="ai-card mode-card selected" data-level="normal">
         <div class="mode-name" data-i18n="ai.normal.name">보통</div>
         <div class="mode-desc" data-i18n="ai.normal.desc">따냄·활로를 챕니다. 히든과 스캔도 씁니다</div>
-      </div>
-      <div class="ai-card mode-card" data-level="hard">
+      </button>
+      <button type="button" class="ai-card mode-card" data-level="hard">
         <div class="mode-name" data-i18n="ai.hard.name">고수</div>
         <div class="mode-desc" data-i18n="ai.hard.desc">한 수 앞을 내다보고 손해 보는 수를 피합니다</div>
-      </div>
+      </button>
     </div>
   </section>
 
@@ -162,18 +163,18 @@
   <section class="lobby-section" id="byo-section">
     <h2 data-i18n="lobby.byoHead">초읽기 (시간제)</h2>
     <div class="mode-row">
-      <div class="byo-card mode-card selected" data-sec="0">
+      <button type="button" class="byo-card mode-card selected" data-sec="0">
         <div class="mode-name" data-i18n="byo.none.name">없음</div>
         <div class="mode-desc" data-i18n="byo.none.desc">시간 제한 없이 편하게</div>
-      </div>
-      <div class="byo-card mode-card" data-sec="25">
+      </button>
+      <button type="button" class="byo-card mode-card" data-sec="25">
         <div class="mode-name" data-i18n="byo.25.name">25초 × 3회</div>
         <div class="mode-desc" data-i18n="byo.25.desc">정식 대회 규격. 초읽기 소진 시 −2점, 전부 소진 시 시간패</div>
-      </div>
-      <div class="byo-card mode-card" data-sec="15">
+      </button>
+      <button type="button" class="byo-card mode-card" data-sec="15">
         <div class="mode-name" data-i18n="byo.15.name">15초 × 3회</div>
         <div class="mode-desc" data-i18n="byo.15.desc">스피드전</div>
-      </div>
+      </button>
     </div>
   </section>
 
@@ -255,7 +256,8 @@
 
     <!-- 보드 -->
     <main class="board-wrap">
-      <canvas id="board"></canvas>
+      <canvas id="board" tabindex="0" role="application"
+        aria-label="Game board — arrow keys move the cursor, Enter or Space plays"></canvas>
     </main>
 
     <!-- 백 패널 -->
