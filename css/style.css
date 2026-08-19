@@ -690,3 +690,29 @@ body {
   55%  { transform: translateX(4px); }
   100% { transform: translateX(0); }
 }
+
+/* ---------------- 초대 링크 ---------------- */
+.invite-box {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--panel-edge);
+  border-radius: 10px;
+  padding: 12px 14px; margin: 4px 0 14px;
+}
+.invite-label {
+  display: block; font-size: 12.5px; font-weight: 700;
+  color: var(--orange-hi); margin-bottom: 7px; letter-spacing: .5px;
+}
+.invite-row { display: flex; gap: 8px; align-items: stretch; }
+.invite-input {
+  flex: 1; min-width: 0;
+  background: #1c1108; color: var(--text);
+  border: 1px solid var(--panel-edge); border-radius: 8px;
+  padding: 9px 11px; font-size: 12.5px;
+  font-family: 'Consolas', 'Menlo', monospace;
+  text-overflow: ellipsis; cursor: pointer;
+}
+.invite-input:focus { outline: 2px solid var(--blue); }
+.invite-box .ov-note { margin: 9px 0 0; font-size: 12px; }
+@media (max-width: 520px) {
+  .invite-row { flex-direction: column; }
+}

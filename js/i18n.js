@@ -73,6 +73,12 @@
       'label.myName': '내 이름',
       'lobby.start': '게임 시작',
 
+      'wait.inviteLabel': '초대 링크 — 이것만 보내면 됩니다',
+      'wait.copyLink': '링크 복사',
+      'wait.linkNote': '친구가 이 링크를 누르면 <b>코드 입력 없이 바로</b> 들어옵니다. 카카오톡·디스코드에 그대로 붙여넣으세요.',
+      'wait.invited': '초대 링크로 방에 접속하는 중… (방 코드 {code})',
+      'toast.linkCopied': '초대 링크를 복사했습니다. 친구에게 붙여넣기 하세요.',
+
       /* --- 인터랙티브 튜토리얼 (js/tutorial.js) --- */
       'tut.open': '▶ 직접 해보기 (2분)',
       'tut.stepOf': '{n} / {total}',
@@ -471,6 +477,12 @@
       'label.p2': 'P2 name',
       'label.myName': 'Your name',
       'lobby.start': 'START GAME',
+
+      'wait.inviteLabel': 'Invite link — just send this',
+      'wait.copyLink': 'Copy link',
+      'wait.linkNote': 'Your friend clicks this and walks straight in — <b>no code to type</b>. Paste it into any chat.',
+      'wait.invited': 'Joining the room from your invite link… (room code {code})',
+      'toast.linkCopied': 'Invite link copied. Paste it to your friend.',
 
       /* --- Interactive tutorial (js/tutorial.js) --- */
       'tut.open': '▶ Try it hands-on (2 min)',

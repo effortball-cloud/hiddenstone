@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" href="assets/icon-192.png" sizes="192x192" />
 <link rel="apple-touch-icon" href="assets/icon-180.png" />
 <link rel="manifest" href="manifest.webmanifest" />
-<link rel="stylesheet" href="css/style.css?v=6" />
+<link rel="stylesheet" href="css/style.css?v=7" />
 <!-- 온라인 멀티플레이용 PeerJS (없어도 같은 기기 2인 플레이는 동작) -->
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <!-- 공개 로비(방 목록)용 MQTT — 없어도 코드방·2인 플레이는 동작 -->
@@ -291,6 +291,16 @@
     <p id="wait-msg" data-i18n="wait.default">기다리는 중…</p>
     <div id="room-code-row" style="display:none">
       <div class="room-code" id="room-code">-----</div>
+
+      <div class="invite-box">
+        <label class="invite-label" for="invite-link" data-i18n="wait.inviteLabel">초대 링크</label>
+        <div class="invite-row">
+          <input id="invite-link" class="invite-input" type="text" readonly />
+          <button id="btn-copy-link" class="mini-btn primary" data-i18n="wait.copyLink">링크 복사</button>
+        </div>
+        <p class="ov-note" data-i18n-html="wait.linkNote">—</p>
+      </div>
+
       <button id="btn-copy-code" class="small-btn" data-i18n="wait.copyCode">코드 복사</button>
       <p class="ov-note" data-i18n-html="wait.codeNote">—</p>
     </div>
@@ -365,15 +375,15 @@
   <button id="btn-sound" class="tool-btn" data-i18n-title="sound.on">🔊</button>
 </div>
 
-<script src="js/i18n.js?v=6"></script>
-<script src="js/guide.js?v=6"></script>
-<script src="js/maps.js?v=6"></script>
-<script src="js/engine.js?v=6"></script>
-<script src="js/ai.js?v=6"></script>
-<script src="js/ui.js?v=6"></script>
-<script src="js/tutorial.js?v=6"></script>
-<script src="js/net.js?v=6"></script>
-<script src="js/audio.js?v=6"></script>
-<script src="js/main.js?v=6"></script>
+<script src="js/i18n.js?v=7"></script>
+<script src="js/guide.js?v=7"></script>
+<script src="js/maps.js?v=7"></script>
+<script src="js/engine.js?v=7"></script>
+<script src="js/ai.js?v=7"></script>
+<script src="js/ui.js?v=7"></script>
+<script src="js/tutorial.js?v=7"></script>
+<script src="js/net.js?v=7"></script>
+<script src="js/audio.js?v=7"></script>
+<script src="js/main.js?v=7"></script>
 </body>
 </html>

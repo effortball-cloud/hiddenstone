@@ -374,8 +374,7 @@
       App.myPlayer = 1;
       App.net.on('waiting', (code) => {
         $('#wait-msg').textContent = t('wait.forOpponent');
-        $('#room-code').textContent = code;
-        $('#room-code-row').style.display = 'block';
+        showRoomCode(code);
         showOverlay('#ov-wait');
       });
       App.net.on('open', () => {
@@ -396,6 +395,53 @@
       });
       App.net.join(code);
     }
+  }
+
+  /* ---------------- 초대 링크 ----------------
+   * 방 코드를 불러주는 대신 링크 하나로 들어오게 한다.
+   * 배포 경로(GitHub Pages 하위 경로)와 로컬 양쪽에서 동작하도록
+   * origin + pathname 으로 만든다. */
+  function inviteLink(code) {
+    return location.origin + location.pathname + '?room=' + encodeURIComponent(code);
+  }
+
+  /* 방을 연 뒤 대기창에 코드와 초대 링크를 함께 보여준다 */
+  function showRoomCode(code) {
+    $('#room-code').textContent = code;
+    $('#invite-link').value = inviteLink(code);
+    $('#room-code-row').style.display = 'block';
+  }
+
+  /* ?room=CODE 로 들어왔으면 바로 그 방에 접속한다 */
+  function autoJoinFromUrl() {
+    const raw = new URLSearchParams(location.search).get('room');
+    if (!raw) return false;
+    const code = raw.trim().toUpperCase().slice(0, 8);
+    // 주소창을 정리해 두면 새로고침 때 죽은 방으로 다시 붙지 않는다
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    if (!/^[A-Z0-9]{4,8}$/.test(code)) return false;
+
+    if (!new NetSession().available()) {
+      $('#join-code').value = code;
+      toast(t('err.noPeerJoin'), 'bad', 6000);
+      return false;
+    }
+    applyModeUI('guest');
+    $$('.mode-card[data-mode]').forEach((c) =>
+      c.classList.toggle('selected', c.dataset.mode === 'guest'));
+    $('#join-code').value = code;
+
+    App.myPlayer = 2;
+    App.names[2] = $('#name-p1').value.trim() || t('name.me');
+    App.names[1] = t('name.opponent');
+    readByoyomi();
+    wireNet();
+    $('#wait-msg').textContent = t('wait.invited', { code });
+    $('#room-code-row').style.display = 'none';
+    showOverlay('#ov-wait');
+    App.net.on('open', () => { App.net.send({ t: 'hello', name: App.names[2] }); });
+    App.net.join(code);
+    return true;
   }
 
   /* ---------------- 공개방 로비 ---------------- */
@@ -467,8 +513,7 @@
       App.publicCode = code;
       if (App.lobby) App.lobby.announce({ id: code, name: App.names[1], map: App.mapId, size: MAPS[App.mapId].size });
       $('#wait-msg').textContent = t('wait.publicOpen');
-      $('#room-code').textContent = code;
-      $('#room-code-row').style.display = 'block';
+      showRoomCode(code);
       showOverlay('#ov-wait');
     });
     App.net.on('open', () => {
@@ -1521,6 +1566,27 @@
       const code = $('#room-code').textContent;
       if (navigator.clipboard) navigator.clipboard.writeText(code).then(() => toast(t('toast.codeCopied'), 'good'));
     };
+    $('#btn-copy-link').onclick = () => {
+      const el = $('#invite-link');
+      const link = el.value;
+      if (!link) return;
+      const done = () => toast(t('toast.linkCopied'), 'good', 4000);
+      /* 클립보드 API는 권한·비보안 컨텍스트에서 막히는 일이 흔하다.
+       * 막히면 입력칸을 선택해 execCommand로 한 번 더 시도하고,
+       * 그것도 안 되면 최소한 선택 상태로 두어 손으로 복사할 수 있게 한다. */
+      const fallback = () => {
+        try {
+          el.select();
+          el.setSelectionRange(0, link.length);
+          if (document.execCommand('copy')) { done(); return; }
+        } catch (e) {}
+        el.select();
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(done, fallback);
+      } else fallback();
+    };
+    $('#invite-link').onclick = () => $('#invite-link').select();
   }
 
   function showLobby() {
@@ -1550,6 +1616,7 @@
     initTutorial();
     initLobby();
     wireButtons();
+    autoJoinFromUrl();   // ?room=CODE 로 들어온 초대 손님 처리
   });
 
   // 디버그/테스트용 핸들 (콘솔에서 상태 확인)
