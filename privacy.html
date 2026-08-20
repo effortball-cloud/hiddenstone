@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>개인정보처리방침 · Privacy Policy — HIDDENSTONE</title>
+<meta name="theme-color" content="#1b1008" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: linear-gradient(180deg, #3d2712 0%, #2b1a0b 45%, #1b1008 100%);
+    background-attachment: fixed;
+    color: #f3e9d7;
+    font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+    line-height: 1.75; padding: 40px 20px 80px;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 26px; margin-bottom: 6px; }
+  .sub { color: #c2a678; font-size: 14px; margin-bottom: 8px; }
+  .updated { color: #8a7250; font-size: 13px; margin-bottom: 34px; }
+  h2 { font-size: 19px; color: #f5943c; margin: 34px 0 12px; }
+  h3 { font-size: 15px; margin: 20px 0 8px; }
+  p, li { font-size: 14.5px; color: #e8dcc6; }
+  ul { margin: 8px 0 8px 22px; }
+  li { margin-bottom: 7px; }
+  .box {
+    background: rgba(255,255,255,0.04); border: 1px solid #5a3f1e;
+    border-radius: 10px; padding: 16px 18px; margin: 16px 0;
+  }
+  .box strong { color: #f5943c; }
+  hr { border: none; border-top: 1px solid #5a3f1e; margin: 48px 0; }
+  a { color: #3f97e8; }
+  .back { display: inline-block; margin-top: 40px; color: #c2a678; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  th, td { border-bottom: 1px solid #5a3f1e; padding: 9px 8px; font-size: 13.5px; text-align: left; }
+  th { color: #c2a678; font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>개인정보처리방침</h1>
+<p class="sub">HIDDENSTONE (히든스톤)</p>
+<p class="updated">최종 수정일: 2026년 8월 20일</p>
+
+<div class="box">
+  <strong>요약:</strong> 이 게임은 계정이 없고, 서버에 아무것도 저장하지 않으며,
+  광고·분석 도구를 쓰지 않습니다. 전적과 기보는 사용자의 브라우저 안에만 남습니다.
+</div>
+
+<h2>1. 수집하는 개인정보</h2>
+<p><strong>없습니다.</strong> 이 게임은 회원가입이나 로그인이 없고, 이름·이메일·전화번호·위치·연락처·
+기기 식별자를 수집하지 않습니다. 운영자가 접근할 수 있는 사용자 데이터베이스가 존재하지 않습니다.</p>
+
+<h2>2. 기기에 저장되는 정보</h2>
+<p>다음 정보는 사용자의 브라우저 저장소(localStorage)에만 저장되며, 외부로 전송되지 않습니다.</p>
+<table>
+  <tr><th>항목</th><th>내용</th></tr>
+  <tr><td>전적</td><td>대국 수·승패·난이도별 기록</td></tr>
+  <tr><td>기보</td><td>최근 20판의 수순(좌표·색·시각)</td></tr>
+  <tr><td>설정</td><td>언어, 소리 켜짐/꺼짐, 로비 배경음악 선택</td></tr>
+</table>
+<p>브라우저의 사이트 데이터를 삭제하면 위 정보는 모두 사라지며, 운영자에게는 사본이 남지 않습니다.
+게임 안에서도 언제든 브라우저 설정으로 삭제할 수 있습니다.</p>
+
+<h2>3. 온라인 대전 시 처리되는 정보</h2>
+<p>온라인 대전은 중앙 서버 없이 두 사람의 브라우저가 직접 연결(P2P)되는 방식입니다.
+이 과정에서 아래 정보가 제3자 서비스를 거칩니다.</p>
+<ul>
+  <li><strong>PeerJS 공용 시그널링 서버</strong> — 두 브라우저를 연결하기 위한 임시 접속 정보와
+      IP 주소가 전달됩니다. 대국 내용 자체는 서버를 거치지 않습니다.
+      (<a href="https://peerjs.com/" target="_blank" rel="noopener">peerjs.com</a>)</li>
+  <li><strong>공용 MQTT 브로커</strong> (EMQX / HiveMQ) — 「공개방」 목록을 위해
+      방 코드, 화면에 표시할 이름, 선택한 맵이 공개 채널에 방송됩니다.
+      이름을 입력하지 않으면 "방장/Host" 같은 임시 표기가 사용됩니다.</li>
+</ul>
+<p>여기에 입력하는 이름은 자유롭게 정할 수 있으므로, 실명이나 알아볼 수 있는 정보를 넣지 않기를 권합니다.
+코드방(비공개)으로 대국하면 MQTT 브로커를 전혀 사용하지 않습니다.</p>
+
+<div class="box">
+  <strong>공정성 고지:</strong> 온라인 대전에서 히든 착수의 좌표는 상대 브라우저로 전달됩니다.
+  화면에는 표시되지 않지만 개발자 도구로는 확인이 가능합니다. 친선전 용도로만 사용하세요.
+</div>
+
+<h2>4. 광고 · 분석 · 추적</h2>
+<p>광고를 게재하지 않고, 분석 도구(Google Analytics 등)나 추적 픽셀을 사용하지 않으며,
+쿠키를 사용하지 않습니다. 제3자에게 데이터를 판매하거나 공유하지 않습니다.</p>
+
+<h2>5. 아동</h2>
+<p>이 게임은 개인정보를 수집하지 않으므로 아동으로부터도 개인정보를 수집하지 않습니다.
+연령 제한 없이 이용할 수 있습니다.</p>
+
+<h2>6. 웹 호스팅</h2>
+<p>이 게임은 GitHub Pages에서 제공됩니다. 웹 서버 접속 시 GitHub의 표준 서버 로그
+(IP 주소 등)가 남을 수 있으며, 이는 GitHub의 정책을 따릅니다.
+(<a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a>)</p>
+
+<h2>7. 방침 변경</h2>
+<p>내용이 바뀌면 이 페이지의 최종 수정일과 함께 갱신합니다.</p>
+
+<h2>8. 문의</h2>
+<p>개인정보 관련 문의: <strong>[여기에 연락용 이메일을 넣으세요]</strong></p>
+
+<hr>
+
+<h1>Privacy Policy</h1>
+<p class="sub">HIDDENSTONE</p>
+<p class="updated">Last updated: 20 August 2026</p>
+
+<div class="box">
+  <strong>In short:</strong> This game has no accounts, stores nothing on any server, and runs no
+  ads or analytics. Your record and game files stay in your own browser.
+</div>
+
+<h2>1. Personal data we collect</h2>
+<p><strong>None.</strong> There is no sign-up and no login. We do not collect your name, email,
+phone number, location, contacts, or device identifiers. No user database exists.</p>
+
+<h2>2. Data stored on your device</h2>
+<p>The following is kept in your browser's localStorage only and is never transmitted anywhere.</p>
+<table>
+  <tr><th>Item</th><th>What it holds</th></tr>
+  <tr><td>Record</td><td>Games played, wins and losses, results per difficulty</td></tr>
+  <tr><td>Game files</td><td>Move list of your last 20 games (coordinates, colour, timestamp)</td></tr>
+  <tr><td>Settings</td><td>Language, sound on/off, lobby music choice</td></tr>
+</table>
+<p>Clearing your browser's site data deletes all of it permanently. We keep no copy.</p>
+
+<h2>3. Online play</h2>
+<p>Online matches connect two browsers directly (peer-to-peer) with no game server. Two third-party
+services are involved in setting that up:</p>
+<ul>
+  <li><strong>PeerJS public signalling server</strong> — exchanges temporary connection details and
+      IP addresses so the two browsers can find each other. Moves themselves do not pass through it.</li>
+  <li><strong>Public MQTT brokers</strong> (EMQX / HiveMQ) — used only for the "public room" list.
+      A room code, the display name you chose, and the selected map are broadcast on a public channel.
+      If you enter no name, a generic label such as "Host" is used instead.</li>
+</ul>
+<p>The display name is free text, so please avoid your real name or anything identifying.
+Private code rooms do not use the MQTT broker at all.</p>
+
+<div class="box">
+  <strong>Fair play notice:</strong> in online games the coordinates of a hidden stone are sent to
+  your opponent's browser. They are never drawn on screen, but they can be found with developer
+  tools. Play online only with people you trust.
+</div>
+
+<h2>4. Ads, analytics and tracking</h2>
+<p>No advertising, no analytics (no Google Analytics or similar), no tracking pixels, no cookies.
+We do not sell or share data with anyone.</p>
+
+<h2>5. Children</h2>
+<p>Because the game collects no personal data, it collects none from children either.
+There is no age restriction.</p>
+
+<h2>6. Hosting</h2>
+<p>The game is served from GitHub Pages. Standard web server logs (including IP addresses) may be
+recorded by GitHub under their own policy.</p>
+
+<h2>7. Changes</h2>
+<p>If this policy changes we will update this page along with the date above.</p>
+
+<h2>8. Contact</h2>
+<p>Privacy enquiries: <strong>[put your contact email here]</strong></p>
+
+<a class="back" href="./">← HIDDENSTONE</a>
+</main>
+</body>
+</html>

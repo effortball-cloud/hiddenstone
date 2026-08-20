@@ -469,6 +469,23 @@
     return true;
   }
 
+  /* 홈 화면 앱 아이콘의 바로가기(manifest shortcuts)로 들어온 경우.
+   * 매니페스트에 선언만 하고 처리하지 않으면 눌러도 아무 일도 안 일어난다. */
+  function quickStartFromUrl() {
+    const q = new URLSearchParams(location.search).get('quick');
+    if (!q) return false;
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    if (q === 'tutorial') { startTutorial(); return true; }
+    if (q === 'ai') {
+      applyModeUI('ai');
+      $$('.mode-card[data-mode]').forEach((c) =>
+        c.classList.toggle('selected', c.dataset.mode === 'ai'));
+      onLobbyStart();
+      return true;
+    }
+    return false;
+  }
+
   /* ---------------- 공개방 로비 ---------------- */
   function initPublicLobby() {
     if (App.lobby) return;
@@ -1857,7 +1874,7 @@
     initReplay();
     renderRecords();
     wireButtons();
-    autoJoinFromUrl();   // ?room=CODE 로 들어온 초대 손님 처리
+    if (!autoJoinFromUrl()) quickStartFromUrl();   // ?room= 초대 / ?quick= 앱 바로가기
   });
 
   // 디버그/테스트용 핸들 (콘솔에서 상태 확인)

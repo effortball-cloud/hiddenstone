@@ -1,17 +1,91 @@
 {
-  "name": "HIDDENSTONE",
+  "id": "/hiddenstone/",
+  "name": "HIDDENSTONE — Strategic Go Battle",
   "short_name": "HIDDENSTONE",
-  "description": "Go with a mind game — Base Build, Turn Bidding, Hidden and Scan.",
+  "description": "Go with a hidden move. Place secret bases, bid for the first move, hide one stone your opponent cannot see, and scan to find theirs. Play the AI or a friend.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
   "orientation": "any",
   "background_color": "#1b1008",
   "theme_color": "#1b1008",
-  "categories": ["games", "board"],
+  "categories": [
+    "games",
+    "board",
+    "entertainment"
+  ],
   "icons": [
-    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/store/phone-1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Play the AI right away"
+    },
+    {
+      "src": "screenshots/store/phone-2.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Hidden — the move they cannot see"
+    },
+    {
+      "src": "screenshots/store/wide-1.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Base Build, Komi Bidding, Hidden and Scan"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play the AI",
+      "short_name": "vs AI",
+      "url": "./?quick=ai",
+      "icons": [
+        {
+          "src": "assets/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Learn to play",
+      "short_name": "Tutorial",
+      "url": "./?quick=tutorial",
+      "icons": [
+        {
+          "src": "assets/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }
